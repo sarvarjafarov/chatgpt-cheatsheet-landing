@@ -4,5 +4,5 @@
 set -e
 rm -rf dist
 mkdir -p dist
-cp index.html abune.html og-image.png _headers dist/
+cp index.html abune.html og-image.png _headers _redirects dist/
 echo "Built dist/: $(ls dist | tr '\n' ' ')"
