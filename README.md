@@ -5,10 +5,12 @@ Code Academy's lead magnet. Visitors leave their name, email and phone on the la
 ## How it fits together
 
 ```
-Browser ──POST JSON──▶ Google Apps Script web app ──▶ Google Sheet ("Leads")
+Browser ──POST JSON──▶ Google Apps Script web app ──▶ Google Sheet ("Leads", "Kampaniyalar", "Göndərişlər")
    │                         │
-   │                         ├─▶ Welcome email with the PDF link (Gmail / MailApp)
-   │                         └─▶ CRM dashboard (Admin.html, served by Apps Script)
+   │                         ├─▶ Email service (Email.gs): Gmail API sender, welcome email,
+   │                         │     campaign queue (time trigger, daily limit), one-click
+   │                         │     unsubscribe (RFC 8058), bounce scanning
+   │                         └─▶ CRM dashboard (Admin.html): leads, pipeline, campaigns
    │
    └── index.html + og-image.png: a static site, the only part hosted on our server
 ```
@@ -20,6 +22,8 @@ Browser ──POST JSON──▶ Google Apps Script web app ──▶ Google She
 | `index.html` | Our web server (static) |
 | `og-image.png` | Our web server (static), the link-preview image for social networks |
 | `Code.gs` | Google Apps Script, bound to the leads Google Sheet |
+| `Email.gs` | Google Apps Script: Gmail API email service and campaigns |
+| `appsscript.json` | Apps Script manifest (enables the Gmail advanced service, Asia/Baku time zone) |
 | `Admin.html` | Google Apps Script (CRM dashboard). **Do not deploy it to the web server.** |
 | `QURAŞDIRMA.md` | Step-by-step Google-side setup (in Azerbaijani) |
 | `deploy/` | nginx config and Dockerfile for the static site |
@@ -79,6 +83,7 @@ The repo is set up for Cloudflare Pages with Git integration: every push to `mai
 
 - **Outbound from the visitor's browser** (not the server) to `script.google.com`, `script.googleusercontent.com`, `fonts.googleapis.com` and `fonts.gstatic.com`. If you set a Content-Security-Policy header, allow these (plus `www.googletagmanager.com` / `connect.facebook.net` if analytics IDs are set). `deploy/nginx.conf` contains a matching CSP.
 - **Caching:** `index.html` should be `no-cache` so config changes take effect immediately. `og-image.png` can be cached.
+- **Email deliverability (DNS, not this server):** if campaigns are sent from a `code.edu.az` address, the domain needs SPF, DKIM (Google Workspace → Authenticate email) and a DMARC record. This is the only email-related task for the domain admin; sending itself runs in Google.
 - **No server-side secrets** exist in this repo. Lead data never touches our server; it lives in the Google Sheet owned by the account that deployed the Apps Script.
 - **Updating:** replace `index.html` and reload. No restart is needed with plain nginx; with Docker, rebuild the image.
 

@@ -25,6 +25,10 @@ const DUP_WINDOW_MS = 10 * 60 * 1000;       // eyni e-poçt bu müddətdə təkr
 function pdfUrl_() { return /^https?:\/\//.test(PDF_URL) ? PDF_URL : ''; }
 
 function doPost(e) {
+  const q = (e && e.parameter) || {};
+  // Gmail/Yahoo «bir kliklə abunədən çıx» düyməsi bu ünvana POST göndərir (List-Unsubscribe-Post).
+  if (q.unsub) { unsubscribe_(q.unsub, q.t); return json_({ ok: true }); }
+  rememberUrl_();
   let d;
   try { d = JSON.parse((e && e.postData && e.postData.contents) || '{}'); }
   catch (err) { return json_({ ok: false, error: 'invalid' }); }
@@ -91,15 +95,21 @@ function doGet(e) {
   const p = (e && e.parameter) || {};
   if (p.admin) {
     if (!keyOk_(p.admin)) return page_('Giriş qadağandır', 'Bu link etibarsızdır. Düzgün linki Apps Script-də setup funksiyası göstərir.');
+    rememberUrl_();
     const t = HtmlService.createTemplateFromFile('Admin');
     t.key = p.admin;
     return t.evaluate().setTitle('Leads · CRM')
       .addMetaTag('viewport', 'width=device-width, initial-scale=1');
   }
   if (!p.unsub) return json_({ ok: true });
-  const email = String(p.unsub).trim().toLowerCase();
-  if (p.t !== token_(email)) return page_('Link etibarsızdır', 'Zəhmət olmasa, məktubdakı linkdən yenidən istifadə edin.');
+  if (!unsubscribe_(p.unsub, p.t)) return page_('Link etibarsızdır', 'Zəhmət olmasa, məktubdakı linkdən yenidən istifadə edin.');
+  return page_('Abunədən çıxdınız', 'Bundan sonra sizə reklam məktubları göndərilməyəcək. Fikrinizi dəyişsəniz, code.edu.az saytında yenidən qeydiyyatdan keçə bilərsiniz.');
+}
 
+/** Token düzgündürsə, həmin e-poçtun bütün sətirlərini «Abunədən çıxıb» edir. */
+function unsubscribe_(rawEmail, t) {
+  const email = String(rawEmail || '').trim().toLowerCase();
+  if (!email || t !== token_(email)) return false;
   const sh = sheet_();
   const last = sh.getLastRow();
   if (last > 1) {
@@ -111,35 +121,21 @@ function doGet(e) {
       }
     });
   }
-  return page_('Abunədən çıxdınız', 'Bundan sonra sizə reklam məktubları göndərilməyəcək. Fikrinizi dəyişsəniz, code.edu.az saytında yenidən qeydiyyatdan keçə bilərsiniz.');
+  return true;
 }
 
+/** Xoş gəldin məktubu (Email.gs-dəki şablon və Gmail API ilə). */
 function sendWelcome_(name, email) {
-  const pdf = esc_(pdfUrl_());
-  const unsub = ScriptApp.getService().getUrl() + '?unsub=' + encodeURIComponent(email) + '&t=' + token_(email);
-  const html =
-    '<div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;color:#141414;line-height:1.55">' +
-    '<div style="background:#141414;color:#fff;padding:28px 24px;border-radius:16px 16px 0 0">' +
-    '<div style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#FE00F6;font-weight:bold">Code Academy</div>' +
-    '<h1 style="font-size:24px;margin:10px 0 0">ChatGPT cheat sheet-iniz hazırdır</h1></div>' +
-    '<div style="background:#fff;border:1px solid #E6E3DE;border-top:0;padding:24px;border-radius:0 0 16px 16px">' +
-    '<p>Salam, ' + esc_(name) + '!</p>' +
-    '<p>Code Academy-nin ChatGPT cheat sheet-ini seçdiyiniz üçün təşəkkür edirik. Faylı aşağıdakı düymə ilə istənilən vaxt yükləyə bilərsiniz.</p>' +
-    '<p style="text-align:center;margin:26px 0"><a href="' + pdf + '" style="background:#FE00F6;color:#141414;text-decoration:none;font-weight:bold;padding:14px 26px;border-radius:12px;display:inline-block">PDF-i yüklə</a></p>' +
-    '<p><b>Başlamaq üçün məsləhət:</b> əvvəlcə 3-cü səhifədəki ayarları qurun, sonra 4-cü səhifədəki formulla bir prompt yazın. Fərqi elə ilk cavabda görəcəksiniz.</p>' +
-    '<p>Hörmətlə,<br>Sərvər Cəfərov<br>Code Academy</p></div>' +
-    '<p style="font-size:12px;color:#5E5A55;padding:14px 8px">Bu məktubu cheat sheet-i yüklədiyiniz və Code Academy-dən məlumat almağa razılıq verdiyiniz üçün alırsınız. ' +
-    '<a href="' + esc_(unsub) + '" style="color:#5E5A55">Abunədən çıx</a></p></div>';
-  const msg = {
-    to: email,
-    name: FROM_NAME,
-    subject: 'ChatGPT cheat sheet-iniz hazırdır',
-    htmlBody: html,
-    body: 'Salam, ' + name + '!\n\nCheat sheet-i bu linkdən yükləyə bilərsiniz: ' + pdfUrl_() +
-          '\n\nHörmətlə,\nSərvər Cəfərov, Code Academy\n\nAbunədən çıxmaq: ' + unsub
-  };
-  if (REPLY_TO) msg.replyTo = REPLY_TO;
-  MailApp.sendEmail(msg);
+  const unsub = unsubUrl_(email);
+  const r = renderEmail_({
+    headline: 'ChatGPT cheat sheet-iniz hazırdır',
+    body: 'Salam, {{ad}}!\n\nCode Academy-nin ChatGPT cheat sheet-ini seçdiyiniz üçün təşəkkür edirik. Faylı aşağıdakı düymə ilə istənilən vaxt yükləyə bilərsiniz.\n\n' +
+      '**Başlamaq üçün məsləhət:** əvvəlcə 3-cü səhifədəki ayarları qurun, sonra 4-cü səhifədəki formulla bir prompt yazın. Fərqi elə ilk cavabda görəcəksiniz.\n\n' +
+      'Hörmətlə,\nSərvər Cəfərov\nCode Academy',
+    btnText: 'PDF-i yüklə', btnUrl: pdfUrl_(), name: name, unsubUrl: unsub,
+    reason: 'Bu məktubu cheat sheet-i yüklədiyiniz və Code Academy-dən məlumat almağa razılıq verdiyiniz üçün alırsınız.'
+  });
+  return sendMail_({ to: email, subject: 'ChatGPT cheat sheet-iniz hazırdır', html: r.html, text: r.text, unsubUrl: unsub });
 }
 
 // ---------- köməkçi funksiyalar ----------
@@ -300,7 +296,7 @@ function setup() {
     sh.getRange(2, COL.stage, Math.max(sh.getMaxRows() - 1, 1), 1).setDataValidation(rule);
   } catch (err) { console.error(err); }
   if (!pdfUrl_()) console.warn('DİQQƏT: PDF_URL hələ yazılmayıb. Məktub göndərilməyəcək və səhifədə yükləmə düyməsi görünməyəcək.');
-  console.log('Hazırdır. Qalan e-poçt limiti bu gün: ' + MailApp.getRemainingDailyQuota());
+  setupEmail_();
   adminLink();
 }
 

@@ -1,6 +1,8 @@
 # Landing page-in quraşdırılması (təxminən 15 dəqiqə)
 
-Paketdə dörd fayl var:
+Paketdə bu fayllar var:
+
+- **Email.gs** və **appsscript.json** — Gmail API ilə məktub göndərmə və kampaniyalar (Apps Script-ə əlavə olunur). Bax: «E-poçt xidməti» bölməsi.
 
 - **Admin.html** — lead-ləri izləmək üçün CRM paneli (Apps Script-ə əlavə olunur, saytla birlikdə dərc edilmir). Bax: «CRM paneli» bölməsi.
 
@@ -110,6 +112,43 @@ Paneldəki dəyişikliklər cədvəldəki **Mərhələ**, **Qeyd** və **Son əl
 
 > **Admin.html-ə baxış.** Faylı kompüterdə birbaşa açsanız, panel nümunə məlumatlarla «demo» rejimində işləyir. Beləcə onu quraşdırmadan əvvəl görə bilərsiniz.
 
+## E-poçt xidməti (Gmail API ilə kampaniyalar)
+
+Bütün məktublar (xoş gəldin məktubu və kampaniyalar) **Gmail API** ilə, sizin Google hesabınızdan göndərilir. Ayrıca e-poçt xidmətinə (Mailchimp və s.) ehtiyac yoxdur.
+
+**Nə verir:**
+
+- **Kampaniyalar:** CRM panelinin «Kampaniyalar» bölməsində məktub yazırsınız, auditoriyanı (mərhələ və mənbə üzrə) seçirsiniz, özünüzə sınaq məktubu göndərirsiniz və göndərməni başladırsınız.
+- **Ad ilə müraciət:** mövzuda, başlıqda və mətndə `{{ad}}` alıcının adı ilə əvəz olunur. `**mətn**` qalın yazılır, linklər avtomatik işləyir.
+- **Növbə:** məktublar «Göndərişlər» vərəqində növbəyə düşür və hər 5 dəqiqədən bir partiya ilə gedir. Gündəlik limit dolanda göndərmə dayanır və ertəsi gün özü davam edir. Kampaniyanı istənilən vaxt dayandırmaq, davam etdirmək və ya ləğv etmək olar.
+- **Qanuna uyğunluq:** yalnız «Aktiv» abunəçilərə göndərilir. Hər məktubun sonunda «Abunədən çıx» linki olur, başlıqlarda isə Gmail və Yahoo-nun tələb etdiyi **bir kliklə abunədən çıxma** (List-Unsubscribe) var. Göndərmə anında status yenidən yoxlanır: növbədə olarkən abunədən çıxan şəxsə məktub getmir.
+- **Çatdırılmayan ünvanlar:** skript 6 saatdan bir Gmail-də «çatdırılmadı» (bounce) məktublarını tapır və həmin lead-ləri «Çatdırılmır» edir. Onlara bir daha məktub göndərilmir.
+- **Hesabat:** hər kampaniya üzrə göndərilən, xəta verən və ötürülən məktublar, alıcı səviyyəsində xəta səbəbi.
+
+**Quraşdırma (5 dəqiqə):**
+
+1. Apps Script-də **+ → Script** ilə yeni fayl yaradın, adını **Email** qoyun və **Email.gs** faylının məzmununu yapışdırın.
+2. **Gmail API-ni qoşun.** Sol paneldə **Services** yanındakı **+** düyməsinə basın, **Gmail API** seçin və **Add** edin.
+   (Alternativ: **Project Settings → «Show "appsscript.json" manifest file»** aktivləşdirin və `appsscript.json` faylını bu paketdəki ilə əvəz edin. Bu, Gmail API-ni qoşur və saat qurşağını Bakı edir.)
+3. **Code.gs** və **Admin.html** fayllarını da ən son versiya ilə əvəz edin.
+4. **setup** funksiyasını yenidən işə salın. Google Gmail-ə və trigger-lərə yeni icazələr istəyəcək: **Allow** seçin. setup «Kampaniyalar» və «Göndərişlər» vərəqlərini və iki trigger-i (növbə üçün 5 dəqiqədən bir, bounce üçün 6 saatdan bir) yaradır.
+5. **Deploy → Manage deployments → ✏️ → Version: New version → Deploy.**
+6. CRM panelini açın, **Kampaniyalar** bölməsinə keçin və yuxarıda sarı xəbərdarlıq olmadığını yoxlayın. Sonra özünüzə sınaq məktubu göndərin.
+
+**Email.gs-dəki ayarlar:**
+
+- `FROM_EMAIL` — məktubların hansı ünvandan getdiyi. Boş qalsa, skripti dərc edən hesabdan gedir. Məsələn `info@code.edu.az` yazmaq üçün həmin ünvan əvvəlcə Gmail-də **Settings → Accounts → Send mail as** bölməsində əlavə və təsdiq olunmalıdır. Panel bunu yoxlayır və qurulmayıbsa xəbərdarlıq göstərir.
+- `DAILY_LIMIT` — gündəlik ümumi limit (xoş gəldin məktubları da daxil). Google-un limiti pulsuz Gmail üçün təxminən **500**, Google Workspace üçün **2 000** məktubdur. Ehtiyat payı ilə 450 və ya 1 800 yazın.
+- `FROM_NAME` və `REPLY_TO` Code.gs-dədir və bütün məktublara aiddir.
+
+**Məktubların spama düşməməsi üçün:**
+
+- Göndərən domen üçün (məsələn, code.edu.az) DNS-də **SPF, DKIM və DMARC** qurulmalıdır. Google Workspace istifadə edirsinizsə: Admin console → Apps → Gmail → **Authenticate email** bölməsində DKIM-i aktivləşdirin. Bunu domeni idarə edən sistem administratoru edə bilər.
+- Əvvəlcə kiçik auditoriyaya göndərin və sayı tədricən artırın.
+- Mövzuda hamısı böyük hərflə yazmayın və çoxlu nida işarəsi qoymayın.
+
+**Məhdudiyyətlər:** Məktubun açılması (open) və linkə klik izlənmir. Apps Script bunun üçün lazım olan şəkil və yönləndirmə cavablarını verə bilmir. Göndərilən məktubların surətini Gmail-in «Göndərilənlər» (Sent) qovluğunda görəcəksiniz.
+
 ## Mənbəni izləmək (UTM)
 
 Hər kanal üçün linkə etiket əlavə edin. Etiket cədvəldə ayrıca sütunda görünəcək:
@@ -128,7 +167,7 @@ Hər kanal üçün linkə etiket əlavə edin. Etiket cədvəldə ayrıca sütun
 
 ## Bilməli olduğunuz məqamlar
 
-- **Məktub limiti.** Pulsuz Gmail hesabı Apps Script ilə gündə təxminən 100 məktub göndərə bilir, Google Workspace hesabı isə 1 500. Günlük yükləmə bundan çox olarsa, `SEND_EMAIL = false` edin. Yükləmə düyməsi səhifədə yenə də görünəcək. Limit dolanda **Məktub** sütununda «Xəta» yazılır.
+- **Məktub limiti.** Gmail API ilə pulsuz Gmail hesabı gündə təxminən 500, Google Workspace hesabı isə 2 000 məktub göndərə bilir. Skript `DAILY_LIMIT` (Email.gs) ilə bundan aşağı qalır; limit dolanda xoş gəldin məktubu göndərilmir (**Məktub** sütununda «Xəta» yazılır), kampaniyalar isə ertəsi gün özü davam edir. Yükləmə düyməsi səhifədə hər halda görünür.
 - **Reklam göndərəndə.** Göndərməzdən əvvəl cədvəli **Status = Aktiv** üzrə süzün. «Abunədən çıxıb» olanlara heç nə göndərməyin.
 - **Şərtlər mətni.** Bu mətn hüquqi şablondur. Dərc etməzdən əvvəl Code Academy-nin hüquqşünası ilə razılaşdırın. Mətni dəyişsəniz, `TERMS_VERSION` sahəsini də yeniləyin: hər lead-in hansı versiyaya razılıq verdiyi cədvəldə saxlanır.
 - **Cədvələ giriş.** Cədvəldə şəxsi məlumatlar var. Onu yalnız işi olan əməkdaşlarla paylaşın.

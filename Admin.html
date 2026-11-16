@@ -135,7 +135,8 @@ dl{display:grid;grid-template-columns:120px minmax(0,1fr);gap:7px 12px;margin:0;
 dt{color:var(--mute);font-weight:600}
 dd{margin:0;font-weight:600;word-break:break-word}
 
-.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;font-weight:700;font-size:13px;z-index:40;display:none;max-width:calc(100% - 32px)}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;font-weight:700;font-size:13px;z-index:40;pointer-events:none;box-shadow:0 10px 30px rgba(0,0,0,.25);display:none;max-width:calc(100% - 32px)}
+body.editing .toast{bottom:auto;top:70px}
 
 /* Mobile: table → cards */
 @media (max-width:759px){
@@ -160,6 +161,78 @@ dd{margin:0;font-weight:600;word-break:break-word}
   .kpis{grid-template-columns:repeat(6,minmax(0,1fr))}
   .charts{grid-template-columns:1.5fr 1fr 1fr}
 }
+/* Tabs */
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin:0 0 14px;overflow-x:auto}
+.tabs button{border:0;background:none;padding:10px 14px;font-weight:800;font-size:14px;color:var(--mute);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.tabs button.on{color:var(--ink);border-bottom-color:var(--mag)}
+.tabs em{font-style:normal;background:var(--pink);color:#7A0076;border-radius:999px;padding:1px 7px;font-size:11.5px;margin-left:6px}
+[hidden]{display:none!important}
+
+/* Campaigns */
+.notice{border-radius:12px;padding:10px 14px;font-weight:600;font-size:13px;margin-bottom:10px;background:var(--warn-bg);color:var(--warn)}
+.notice b{font-weight:800}
+.ehead{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:10px}
+.ehead .kpi b{font-size:22px}
+.qbar{height:8px;background:#F2F0EC;border-radius:4px;overflow:hidden;margin-top:8px}
+.qbar i{display:block;height:100%;background:var(--mag-d);border-radius:0 4px 4px 0}
+.kpi.dark .qbar{background:rgba(255,255,255,.15)}
+.kpi.dark .qbar i{background:var(--mag)}
+.clist{padding:0;overflow:hidden}
+.clist .lh{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.clist .lh h2{margin:0}
+.crow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 14px;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line);cursor:pointer}
+.crow:last-child{border-bottom:0}
+.crow:hover{background:var(--pink-2)}
+.crow .t{font-weight:800}
+.crow .s{color:var(--mute);font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.crow .p{grid-column:1 / -1;display:flex;align-items:center;gap:10px;font-size:12px;color:var(--mute);font-weight:600}
+.prog{flex:1;height:8px;background:#F2F0EC;border-radius:4px;overflow:hidden;display:flex;gap:2px}
+.prog i{display:block;height:100%}
+.prog .ps{background:var(--ok)} .prog .pf{background:var(--err)} .prog .pk{background:#B9B4AD}
+.cs-0{background:#EFEDEA;color:#5E5A55} .cs-1,.cs-2{background:#EAF0FF;color:#2847A8} .cs-3{background:var(--warn-bg);color:var(--warn)}
+.cs-4{background:var(--ok-bg);color:var(--ok)} .cs-5{background:var(--err-bg);color:var(--err)}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--mute);font-weight:600}
+.legend span::before{content:"";display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:-1px;background:var(--c)}
+
+/* Campaign editor */
+.editor{position:fixed;inset:0;z-index:35;background:var(--paper);display:none;flex-direction:column}
+.editor.open{display:flex}
+.editor>header{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);background:#fff}
+.editor>header h2{font:800 16px/1.2 Unbounded,sans-serif;margin-right:auto}
+.editor .ebody{flex:1;overflow:auto;display:grid;grid-template-columns:minmax(0,1fr);gap:14px;padding:16px}
+.editor .ecol{display:grid;gap:12px;align-content:start}
+.fld label{display:block;font-weight:800;font-size:12.5px;margin-bottom:5px}
+.fld .hint{color:var(--mute);font-size:12px;margin-top:4px}
+.in{width:100%;border:1px solid var(--line);border-radius:10px;padding:9px 12px;background:#fff;min-height:40px}
+.in:focus,textarea.in:focus{outline:none;border-color:var(--ink);box-shadow:0 0 0 3px var(--pink)}
+textarea.in{min-height:200px;resize:vertical;line-height:1.5}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:10px}
+.tchips{display:flex;flex-wrap:wrap;gap:6px}
+.tchips button{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:6px 11px;font-weight:700;font-size:12.5px;cursor:pointer}
+.tchips button.on{border-color:var(--ink);background:var(--ink);color:#fff}
+.aud{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:12px}
+.aud .cnt{font-weight:800;font-size:14px}
+.aud .cnt b{font:800 20px/1 Unbounded,sans-serif;margin-right:4px}
+.pv{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;min-height:520px}
+.pv .ph{padding:10px 14px;border-bottom:1px solid var(--line);font-size:12.5px}
+.pv .ph b{display:block;font-size:14px;margin-top:2px;word-break:break-word}
+.pv iframe{border:0;width:100%;flex:1;min-height:480px;background:#F6F5F2}
+.ebar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:12px 16px;border-top:1px solid var(--line);background:#fff}
+.ebar .grow{flex:1}
+.ebar .test{display:flex;gap:6px;flex:1 1 280px}
+.ebar .test .in{min-height:38px}
+.confirm{display:none;background:var(--ink);color:#fff;border-radius:12px;padding:12px 14px;font-weight:700;font-size:13.5px;align-items:center;gap:10px;flex-wrap:wrap;width:100%}
+.confirm.show{display:flex}
+.confirm span{flex:1 1 220px}
+.confirm .btn{border-color:rgba(255,255,255,.25)}
+.errs{width:100%;border-collapse:collapse;font-size:12.5px}
+.errs td{padding:7px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.errs td:first-child{font-weight:700;word-break:break-all;padding-right:10px}
+.errs td:last-child{color:var(--mute)}
+.mini{width:100%;height:420px;border:1px solid var(--line);border-radius:12px;background:#F6F5F2}
+@media (min-width:760px){ .ehead{grid-template-columns:repeat(4,minmax(0,1fr))} .crow{grid-template-columns:minmax(0,1fr) auto auto} .crow .p{grid-column:auto;min-width:260px} }
+@media (min-width:1000px){ .editor .ebody{grid-template-columns:minmax(0,1fr) minmax(0,1fr);padding:20px 24px} .pv{position:sticky;top:0;max-height:calc(100vh - 160px)} }
+
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -178,6 +251,28 @@ dd{margin:0;font-weight:600;word-break:break-word}
   <div class="demo" id="demo">Demo rejim: bu, nümunə məlumatlardır. Panel Apps Script-dən açılanda real lead-lər görünəcək.</div>
   <div class="err" id="err"></div>
 
+  <nav class="tabs" role="tablist" aria-label="Bölmələr">
+    <button type="button" role="tab" class="on" aria-selected="true" data-view="leads">Lead-lər</button>
+    <button type="button" role="tab" aria-selected="false" data-view="camps">Kampaniyalar<em id="campBadge" hidden></em></button>
+  </nav>
+
+  <div id="viewCamps" hidden>
+    <div id="emailNotices"></div>
+    <section class="ehead" aria-label="E-poçt göstəriciləri">
+      <div class="kpi dark"><span>Bu gün göndərilib</span><b id="qSent">–</b><small id="qLeft">&nbsp;</small><div class="qbar"><i id="qBar" style="width:0"></i></div></div>
+      <div class="kpi"><span>Növbədə</span><b id="qQueued">–</b><small id="qQueuedS">&nbsp;</small></div>
+      <div class="kpi"><span>Aktiv abunəçi</span><b id="qAud">–</b><small>reklam göndərmək olar</small></div>
+      <div class="kpi"><span>Göndərən</span><b id="qFrom" style="font:800 13px/1.35 Manrope,sans-serif;word-break:break-all">–</b><small id="qMode">&nbsp;</small></div>
+    </section>
+    <section class="card clist" aria-label="Kampaniyalar">
+      <div class="lh"><h2>Kampaniyalar</h2><button class="btn mag" id="newCamp" type="button">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Yeni kampaniya</button></div>
+      <div id="campList"></div>
+      <div class="empty" id="campEmpty" hidden>Hələ kampaniya yoxdur. «Yeni kampaniya» ilə ilk məktubunuzu yazın.</div>
+    </section>
+  </div>
+
+  <div id="viewLeads">
   <section class="kpis" aria-label="Göstəricilər">
     <div class="kpi dark"><span>Cəmi lead</span><b id="kTotal">–</b><small id="kTotalS">&nbsp;</small></div>
     <div class="kpi"><span>Bu gün</span><b id="kToday">–</b><small id="kTodayS">&nbsp;</small></div>
@@ -202,7 +297,7 @@ dd{margin:0;font-weight:600;word-break:break-word}
       <select class="f" id="fPeriod" aria-label="Dövr">
         <option value="">Bütün vaxt</option><option value="1">Bu gün</option><option value="7">Son 7 gün</option><option value="30">Son 30 gün</option></select>
       <select class="f" id="fStatus" aria-label="Status">
-        <option value="">Hamısı</option><option value="Aktiv">Yalnız aktiv</option><option value="Abunədən çıxıb">Abunədən çıxanlar</option></select>
+        <option value="">Hamısı</option><option value="Aktiv">Yalnız aktiv</option><option value="Abunədən çıxıb">Abunədən çıxanlar</option><option value="Çatdırılmır">Çatdırılmayanlar</option></select>
     </div>
     <div class="chips" id="chips" role="tablist" aria-label="Mərhələ"></div>
     <div class="count" id="count"></div>
@@ -219,6 +314,64 @@ dd{margin:0;font-weight:600;word-break:break-word}
     <div class="empty" id="empty" style="display:none">Bu filtrlərə uyğun lead yoxdur.</div>
     <div class="more" id="moreBox" style="display:none"><button class="btn" id="more" type="button">Daha çox göstər</button></div>
   </section>
+  </div>
+</div>
+
+<!-- Kampaniya redaktoru -->
+<div class="editor" id="editor" role="dialog" aria-modal="true" aria-labelledby="edTitle">
+  <header><h2 id="edTitle">Yeni kampaniya</h2><span class="saved" id="edSaved">Saxlanıldı ✓</span><button class="x" type="button" id="edClose" aria-label="Bağla">×</button></header>
+  <div class="ebody">
+    <div class="ecol">
+      <div class="fld"><label for="edName">Kampaniyanın adı <span style="color:var(--mute);font-weight:600">(yalnız sizin üçün)</span></label><input class="in" id="edName" maxlength="100" placeholder="Məsələn: Noyabr · Python kursu"></div>
+      <div class="fld"><label for="edSubject">Mövzu</label><input class="in" id="edSubject" maxlength="150" placeholder="{{ad}}, yeni Python kursu başlayır"></div>
+      <div class="fld"><label for="edHeadline">Başlıq</label><input class="in" id="edHeadline" maxlength="200" placeholder="Salam, {{ad}}!"></div>
+      <div class="fld"><label for="edBody">Mətn</label>
+        <textarea class="in" id="edBody" maxlength="20000" placeholder="Abzasları boş sətirlə ayırın.&#10;&#10;**qalın mətn** üçün iki ulduz. Linklər avtomatik işləyir: https://code.edu.az"></textarea>
+        <div class="hint"><b>{{ad}}</b> alıcının adı ilə əvəz olunur · <b>**mətn**</b> qalın yazılır · linklər avtomatik klikləyən olur · sonda «Abunədən çıx» linki avtomatik əlavə edilir</div></div>
+      <div class="two">
+        <div class="fld"><label for="edBtnText">Düymə mətni</label><input class="in" id="edBtnText" maxlength="60" placeholder="Qeydiyyatdan keç"></div>
+        <div class="fld"><label for="edBtnUrl">Düymə linki</label><input class="in" id="edBtnUrl" maxlength="500" inputmode="url" placeholder="https://code.edu.az/..."></div>
+      </div>
+      <div class="aud">
+        <div class="fld"><label>Mərhələ <span style="color:var(--mute);font-weight:600">(heç biri seçilməsə: hamısı)</span></label><div class="tchips" id="edStages"></div></div>
+        <div class="fld"><label>Mənbə <span style="color:var(--mute);font-weight:600">(heç biri seçilməsə: hamısı)</span></label><div class="tchips" id="edSources"></div></div>
+        <div class="cnt"><b id="edCount">0</b>nəfərə göndəriləcək</div>
+        <div class="hint" style="margin:0">Yalnız «Aktiv» abunəçilər: abunədən çıxanlar və çatdırılmayan ünvanlar avtomatik çıxarılır. Eyni e-poçt bir dəfə sayılır.</div>
+      </div>
+    </div>
+    <div class="pv">
+      <div class="ph">Önizləmə (nümunə ad: <span id="pvName">Aysel</span>)<b id="pvSubject">–</b></div>
+      <iframe id="pvFrame" title="Məktubun önizləməsi" sandbox=""></iframe>
+    </div>
+  </div>
+  <div class="ebar">
+    <button class="btn" id="edDelete" type="button" hidden>Qaralamanı sil</button>
+    <div class="test"><input class="in" id="edTestTo" type="email" placeholder="Sınaq üçün e-poçt" aria-label="Sınaq üçün e-poçt"><button class="btn" id="edTest" type="button">Sınaq göndər</button></div>
+    <span class="grow"></span>
+    <button class="btn" id="edSave" type="button">Qaralamanı saxla</button>
+    <button class="btn pri" id="edStart" type="button">Göndərməyə başla →</button>
+    <div class="confirm" id="edConfirm" role="alertdialog" aria-live="assertive">
+      <span id="edConfirmText"></span>
+      <button class="btn" id="edConfirmNo" type="button">Ləğv</button>
+      <button class="btn mag" id="edConfirmYes" type="button">Bəli, göndər</button>
+    </div>
+  </div>
+</div>
+
+<!-- Kampaniya detalları -->
+<div class="drawer" id="cdrawer" role="dialog" aria-modal="true" aria-labelledby="cName">
+  <div class="bg" data-close></div>
+  <div class="panel" style="width:min(560px,100%)">
+    <header><div><h2 id="cName"></h2><p id="cSub"></p></div><button class="x" type="button" data-close aria-label="Bağla">×</button></header>
+    <div class="body">
+      <div class="sec"><h3>Gedişat</h3><div id="cProg"></div></div>
+      <div class="sec"><h3>Əməliyyatlar</h3><div class="row" id="cActs" style="flex-wrap:wrap"></div>
+        <div class="confirm" id="cConfirm" style="margin-top:10px"><span>Növbədə qalan bütün məktublar ləğv ediləcək. Bunu geri qaytarmaq olmaz.</span><button class="btn" id="cConfirmNo" type="button">Xeyr</button><button class="btn mag" id="cConfirmYes" type="button">Bəli, ləğv et</button></div></div>
+      <div class="sec"><h3>Məlumat</h3><dl id="cInfo"></dl></div>
+      <div class="sec" id="cErrSec" hidden><h3>Göndərilməyənlər</h3><table class="errs"><tbody id="cErrs"></tbody></table></div>
+      <div class="sec"><h3>Məktub</h3><iframe class="mini" id="cFrame" title="Məktub" sandbox=""></iframe></div>
+    </div>
+  </div>
 </div>
 
 <div class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="dName">
@@ -238,6 +391,53 @@ dd{margin:0;font-weight:600;word-break:break-word}
 </div>
 <div class="toast" id="toast" role="status"></div>
 
+<script>
+// Email.gs-dəki məktub şablonunun dəqiq surəti (önizləmə üçün). Testlər ikisinin eyni nəticə verdiyini yoxlayır.
+/* @@TEMPLATE START */
+function esc_(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function personalize_(s, name) { return String(s == null ? '' : s).split('{{ad}}').join(name || ''); }
+function fmtBody_(text, name) {
+  return String(text || '').replace(/\r/g, '').split(/\n{2,}/).map(p => {
+    let h = esc_(personalize_(p.trim(), name));
+    h = h.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+    h = h.replace(/(https?:\/\/[^\s<]+[^\s<.,;:!?)])/g, '<a href="$1" style="color:#B800B2">$1</a>');
+    h = h.replace(/\n/g, '<br>');
+    return h ? '<p style="margin:0 0 14px">' + h + '</p>' : '';
+  }).join('');
+}
+function renderEmail(c) {
+  const name = c.name || '';
+  const headline = esc_(personalize_(c.headline, name));
+  const btn = c.btnText && /^https?:\/\//.test(c.btnUrl || '')
+    ? '<p style="text-align:center;margin:26px 0 22px"><a href="' + esc_(c.btnUrl) + '" style="background:#FE00F6;color:#141414;text-decoration:none;font-weight:bold;padding:14px 26px;border-radius:12px;display:inline-block">' + esc_(personalize_(c.btnText, name)) + '</a></p>'
+    : '';
+  const reason = c.reason || 'Bu məktubu Code Academy-dən məlumat almağa razılıq verdiyiniz üçün alırsınız.';
+  const unsub = c.unsubUrl ? ' <a href="' + esc_(c.unsubUrl) + '" style="color:#5E5A55">Abunədən çıx</a>' : '';
+  const html =
+    '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>' +
+    '<body style="margin:0;padding:16px 8px;background:#F6F5F2">' +
+    '<div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;color:#141414;line-height:1.55;font-size:15px">' +
+    '<div style="background:#141414;color:#fff;padding:28px 24px;border-radius:16px 16px 0 0">' +
+    '<div style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#FE00F6;font-weight:bold">Code Academy</div>' +
+    (headline ? '<h1 style="font-size:24px;line-height:1.25;margin:10px 0 0">' + headline + '</h1>' : '') + '</div>' +
+    '<div style="background:#fff;border:1px solid #E6E3DE;border-top:0;padding:24px;border-radius:0 0 16px 16px">' +
+    fmtBody_(c.body, name) + btn + '</div>' +
+    '<p style="font-size:12px;color:#5E5A55;padding:14px 8px;margin:0">' + esc_(reason) + unsub + '</p>' +
+    '</div></body></html>';
+  const text = [
+    personalize_(c.headline, name),
+    '',
+    personalize_(c.body, name).replace(/\*\*(.+?)\*\*/g, '$1'),
+    btn ? '\n' + personalize_(c.btnText, name) + ': ' + c.btnUrl : '',
+    '',
+    '--',
+    reason,
+    c.unsubUrl ? 'Abunədən çıxmaq: ' + c.unsubUrl : ''
+  ].join('\n').replace(/\n{3,}/g, '\n\n').trim();
+  return { html: html, text: text };
+}
+/* @@TEMPLATE END */
+</script>
 <script>
 (function(){
   "use strict";
@@ -275,6 +475,14 @@ dd{margin:0;font-weight:600;word-break:break-word}
         status: rnd() < .06 ? "Abunədən çıxıb" : "Aktiv", unsubAt: "", mail: rnd() < .03 ? "Xəta: Service invoked too many times" : "Göndərildi",
         stage: STAGES[st], note: st > 0 && rnd() < .5 ? "Zəng etdim, kurslar barədə məlumat istədi." : "", contacted: st > 0 ? new Date(now - age / 2).toISOString() : "" });
     }
+    function pick(c){ return { name: c.name || "Adsız kampaniya", subject: c.subject || "", headline: c.headline || "", body: c.body || "", btnText: c.btnText || "", btnUrl: c.btnUrl || "", audience: c.audience || { stages: [], sources: [] } }; }
+    var sentToday = 37;
+    var camps = [
+      Object.assign(pick({ name: "Oktyabr · AI workshop dəvəti", subject: "{{ad}}, 2 noyabrda pulsuz AI workshop", headline: "Salam, {{ad}}!", body: "2 noyabr, saat 19:00-da ChatGPT ilə işləmək üzrə **pulsuz onlayn workshop** keçiririk.\n\nYerlər məhduddur.", btnText: "Yer tut", btnUrl: "https://code.edu.az" }),
+        { id: "c1", created: new Date(Date.now() - 20 * DAY).toISOString(), status: "Bitdi", total: 96, sent: 92, failed: 1, skipped: 3, queued: 0, started: new Date(Date.now() - 20 * DAY).toISOString(), finished: new Date(Date.now() - 20 * DAY + 9e5).toISOString() }),
+      Object.assign(pick({ name: "Noyabr · Python kursu", subject: "{{ad}}, yeni Python qrupu 25 noyabrda başlayır", headline: "Python ilə ilk proqramınızı yazın", body: "Salam, {{ad}}!\n\nYeni **Python** qrupu 25 noyabrda başlayır. Dərslər həftədə 3 dəfə, axşamlar keçirilir.\n\nƏtraflı: https://code.edu.az", btnText: "Qeydiyyatdan keç", btnUrl: "https://code.edu.az", audience: { stages: ["Maraqlanır"], sources: [] } }),
+        { id: "c2", created: new Date(Date.now() - DAY).toISOString(), status: "Göndərilir", total: 140, sent: 60, failed: 0, skipped: 0, queued: 80, started: new Date(Date.now() - 36e5).toISOString(), finished: "" })
+    ];
     return {
       adminData: function(){ return { leads: JSON.parse(JSON.stringify(list)), stages: STAGES, at: new Date().toISOString(), sheetUrl: "" }; },
       adminUpdate: function(id, p){
@@ -283,6 +491,45 @@ dd{margin:0;font-weight:600;word-break:break-word}
         if (p.note !== undefined) l.note = p.note;
         if (p.contacted) l.contacted = new Date().toISOString();
         return JSON.parse(JSON.stringify(l));
+      },
+      /* --- kampaniyalar (demo) --- */
+      adminCampaigns: function(){
+        camps.forEach(function(c){   // demo: göndərilən kampaniya hər yeniləmədə irəliləyir
+          if (c.status === "Göndərilir" || c.status === "Növbədə") {
+            var step = Math.min(c.queued, Math.max(1, Math.ceil(c.total * 0.1))); c.sent += step; c.queued -= step; c.status = c.queued ? "Göndərilir" : "Bitdi";
+            if (!c.queued) c.finished = new Date().toISOString();
+          }
+        });
+        return { campaigns: JSON.parse(JSON.stringify(camps)), email: { gmail: true, from: "info@code.edu.az", fromName: "Code Academy", fromOk: true, sentToday: sentToday, limit: 450, left: 450 - sentToday, unsubOk: true, triggers: ["processQueue", "scanBounces"] } };
+      },
+      adminSaveCampaign: function(c){
+        var ex = c.id && camps.filter(function(x){ return x.id === c.id; })[0];
+        if (ex) { if (ex.status !== "Qaralama") throw new Error("Göndərilməyə başlamış kampaniyanı dəyişmək olmaz"); Object.assign(ex, pick(c), { updated: new Date().toISOString() }); return JSON.parse(JSON.stringify(ex)); }
+        var n = Object.assign({ id: "c" + Date.now(), created: new Date().toISOString(), status: "Qaralama", total: 0, sent: 0, failed: 0, skipped: 0, queued: 0, started: "", finished: "" }, pick(c));
+        camps.unshift(n); return JSON.parse(JSON.stringify(n));
+      },
+      adminTestCampaign: function(c, to){ sentToday++; return { to: to || "info@code.edu.az" }; },
+      adminStartCampaign: function(id){
+        var c = camps.filter(function(x){ return x.id === id; })[0];
+        var n = audienceOf(c.audience).length;
+        var first = Math.max(1, Math.ceil(n * 0.2));
+        Object.assign(c, { status: "Göndərilir", total: n, sent: Math.min(n, first), queued: Math.max(0, n - first), started: new Date().toISOString() });
+        sentToday += c.sent; return JSON.parse(JSON.stringify(c));
+      },
+      adminCampaignAction: function(id, a){
+        var i = -1; camps.forEach(function(x, k){ if (x.id === id) i = k; }); var c = camps[i];
+        if (a === "pause") c.status = "Dayandırılıb";
+        else if (a === "resume") c.status = "Göndərilir";
+        else if (a === "cancel") { c.skipped += c.queued; c.queued = 0; c.status = "Ləğv edilib"; }
+        else if (a === "delete") { camps.splice(i, 1); return { deleted: true }; }
+        else if (a === "duplicate") return demo.adminSaveCampaign(Object.assign(pick(c), { name: c.name + " (surət)" }));
+        return JSON.parse(JSON.stringify(c));
+      },
+      adminCampaignDetail: function(id){
+        var c = camps.filter(function(x){ return x.id === id; })[0];
+        var errors = []; for (var i = 0; i < c.failed; i++) errors.push({ email: "kohne" + i + "@mail.ru", status: "Xəta", error: "Address not found", at: c.started });
+        for (var j = 0; j < Math.min(c.skipped, 3); j++) errors.push({ email: "abune" + j + "@gmail.com", status: "Ötürüldü", error: "Lead statusu: Abunədən çıxıb", at: c.started });
+        return { campaign: JSON.parse(JSON.stringify(c)), errors: errors };
       }
     };
   })();
@@ -475,7 +722,7 @@ dd{margin:0;font-weight:600;word-break:break-word}
       var unsub = l.status === "Abunədən çıxıb", mailErr = /^Xəta/.test(l.mail);
       return '<tr data-id="' + esc(l.id) + '" tabindex="0">' +
         '<td class="c-name"><div class="nm">' + esc(l.name) + (l.note ? ' <svg class="ico-note" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-label="Qeyd var"><path d="M5 4h14v12l-4 4H5z"/><path d="M15 20v-4h4"/></svg>' : "") +
-          (unsub ? ' <span class="tag unsub">Abunədən çıxıb</span>' : "") + (mailErr ? ' <span class="tag mailerr">Məktub xətası</span>' : "") + '</div><div class="sub">' + esc(l.email) + '</div></td>' +
+          (unsub ? ' <span class="tag unsub">Abunədən çıxıb</span>' : "") + (l.status === "Çatdırılmır" ? ' <span class="tag mailerr">E-poçt çatdırılmır</span>' : "") + (mailErr ? ' <span class="tag mailerr">Məktub xətası</span>' : "") + '</div><div class="sub">' + esc(l.email) + '</div></td>' +
         '<td class="c-phone num">' + esc(fmtPhone(l.phone)) + '</td>' +
         '<td class="c-src"><span class="tag">' + esc(srcName(l.src)) + '</span>' + (l.campaign ? '<div class="sub">' + esc(l.campaign) + '</div>' : "") + '</td>' +
         '<td class="c-date num" title="' + esc(fmtDate(l.at, true)) + '">' + esc(rel(l.at)) + '</td>' +
@@ -609,8 +856,262 @@ dd{margin:0;font-weight:600;word-break:break-word}
   setInterval(function(){ if (!document.hidden && !drawer.classList.contains("open")) load(true); }, 60000);
   document.addEventListener("visibilitychange", function(){ if (!document.hidden) load(true); });
 
+  /* ==================== KAMPANİYALAR ==================== */
+  var CSTAT = ["Qaralama", "Növbədə", "Göndərilir", "Dayandırılıb", "Bitdi", "Ləğv edilib"];
+  var cstate = { camps: [], email: null, loaded: false, open: null, view: "leads", loading: false };
+  function cpill(s){ var i = CSTAT.indexOf(s); return '<span class="pill cs-' + (i < 0 ? 0 : i) + '">' + esc(s) + '</span>'; }
+  function isActive(c){ return c.status === "Növbədə" || c.status === "Göndərilir"; }
+
+  // Server-dəki audience_() ilə eyni qayda: yalnız «Aktiv», e-poçta görə təkrarsız.
+  function audienceOf(aud){
+    aud = aud || {}; var st = aud.stages || [], so = aud.sources || [], seen = {}, out = [];
+    state.leads.forEach(function(l){
+      var e = String(l.email || "").trim().toLowerCase();
+      if (!e || seen[e] || l.status !== "Aktiv") return;
+      if (st.length && st.indexOf(l.stage) < 0) return;
+      if (so.length && so.indexOf(l.src || "") < 0) return;
+      seen[e] = 1; out.push(l);
+    });
+    return out;
+  }
+
+  function loadCamps(quiet){
+    if (cstate.loading) return; cstate.loading = true;
+    call("adminCampaigns").then(function(d){
+      cstate.camps = d.campaigns || []; cstate.email = d.email; cstate.loaded = true;
+      renderCamps();
+      if (cstate.open && $("cdrawer").classList.contains("open")) refreshDetail(cstate.open);
+    }).catch(function(e){ if (!quiet) toast("Kampaniyaları yükləmək alınmadı: " + e); })
+      .then(function(){ cstate.loading = false; });
+  }
+
+  function renderCamps(){
+    var em = cstate.email || {}, notes = [];
+    if (em.gmail === false) notes.push("<b>Gmail API qoşulmayıb.</b> Məktublar ehtiyat yolla (MailApp) gedir: limit aşağıdır və «bir kliklə abunədən çıx» başlığı olmur. Apps Script → Services (+) → Gmail API → Add.");
+    if (em.fromOk === false) notes.push("<b>" + esc(em.from) + "</b> ünvanı Gmail-də «Send mail as» kimi qurulmayıb. Gmail → Settings → Accounts → Send mail as.");
+    if (em.unsubOk === false) notes.push("<b>Abunədən çıxma linki hazır deyil.</b> Skripti veb tətbiq kimi dərc edin və paneli /exec linkindən açın.");
+    if (em.triggers && em.triggers.indexOf("processQueue") < 0) notes.push("<b>Növbə trigger-i yoxdur.</b> Apps Script-də <b>setup</b> funksiyasını bir dəfə işə salın.");
+    $("emailNotices").innerHTML = notes.map(function(n){ return '<div class="notice">' + n + '</div>'; }).join("");
+
+    var queued = 0, sending = 0;
+    cstate.camps.forEach(function(c){ if (isActive(c) || c.status === "Dayandırılıb") queued += c.queued; if (isActive(c)) sending++; });
+    var lim = em.limit || 0, sent = em.sentToday || 0;
+    $("qSent").textContent = lim ? sent + " / " + lim : "–";
+    $("qLeft").textContent = lim ? "bu gün daha " + Math.max(0, em.left) + " məktub göndərmək olar" : "";
+    $("qBar").style.width = lim ? Math.min(100, sent / lim * 100) + "%" : "0";
+    $("qQueued").textContent = queued;
+    $("qQueuedS").textContent = queued ? (sending ? "hər 5 dəqiqədən bir partiya ilə" : "dayandırılıb") : "növbə boşdur";
+    $("qAud").textContent = audienceOf({}).length;
+    $("qFrom").textContent = em.from ? (em.fromName ? em.fromName + " <" + em.from + ">" : em.from) : "–";
+    $("qMode").textContent = em.gmail ? "Gmail API ilə" : em.gmail === false ? "MailApp (ehtiyat rejim)" : "";
+    var b = $("campBadge"); b.hidden = !sending; b.textContent = sending ? sending + " göndərilir" : "";
+
+    $("campEmpty").hidden = cstate.camps.length > 0;
+    $("campList").innerHTML = cstate.camps.map(function(c){
+      var t = c.total || 0, pct = function(n){ return t ? (n / t * 100) + "%" : "0"; };
+      var prog = c.status === "Qaralama"
+        ? '<span>Qaralama · ' + esc(rel(c.updated || c.created)) + '</span>'
+        : '<span class="prog" aria-hidden="true"><i class="ps" style="width:' + pct(c.sent) + '"></i><i class="pf" style="width:' + pct(c.failed) + '"></i><i class="pk" style="width:' + pct(c.skipped) + '"></i></span>' +
+          '<span>' + c.sent + ' / ' + t + ' göndərildi' + (c.failed ? ' · ' + c.failed + ' xəta' : '') + '</span>';
+      return '<div class="crow" role="button" tabindex="0" data-id="' + esc(c.id) + '">' +
+        '<div style="min-width:0"><div class="t">' + esc(c.name) + '</div><div class="s">' + esc(c.subject || "(mövzu yoxdur)") + '</div></div>' +
+        '<div>' + cpill(c.status) + '</div><div class="p">' + prog + '</div></div>';
+    }).join("");
+  }
+  function openCamp(id){
+    var c = cstate.camps.filter(function(x){ return x.id === id; })[0]; if (!c) return;
+    if (c.status === "Qaralama") openEditor(c); else openDetail(id);
+  }
+  $("campList").addEventListener("click", function(e){ var r = e.target.closest(".crow"); if (r) openCamp(r.getAttribute("data-id")); });
+  $("campList").addEventListener("keydown", function(e){ if (e.key === "Enter") { var r = e.target.closest(".crow"); if (r) openCamp(r.getAttribute("data-id")); } });
+
+  /* ---------- redaktor ---------- */
+  var editor = $("editor"), ed = null, edDirty = false, pvT, confirmYes = null;
+  var F = { name: "edName", subject: "edSubject", headline: "edHeadline", body: "edBody", btnText: "edBtnText", btnUrl: "edBtnUrl" };
+  function openEditor(c){
+    ed = c ? JSON.parse(JSON.stringify(c)) : { id: "", name: "", subject: "", headline: "Salam, {{ad}}!", body: "", btnText: "", btnUrl: "", audience: { stages: [], sources: [] } };
+    ed.audience = ed.audience || { stages: [], sources: [] };
+    Object.keys(F).forEach(function(k){ $(F[k]).value = ed[k] || ""; });
+    $("edTitle").textContent = ed.id ? "Qaralama" : "Yeni kampaniya";
+    $("edDelete").hidden = !ed.id;
+    if (!$("edTestTo").value) $("edTestTo").value = (cstate.email && cstate.email.from) || "";
+    hideConfirm(); renderAudChips(); updatePreview(); edDirty = false;
+    lastFocus = document.activeElement;
+    editor.classList.add("open"); document.body.classList.add("editing"); document.body.style.overflow = "hidden";
+    $(ed.id ? "edSubject" : "edName").focus();
+  }
+  function readEditor(){ Object.keys(F).forEach(function(k){ ed[k] = $(F[k]).value; }); return ed; }
+  function closeEditor(force){
+    var go = function(){ editor.classList.remove("open"); document.body.classList.remove("editing"); document.body.style.overflow = ""; ed = null; if (lastFocus && lastFocus.focus) lastFocus.focus(); };
+    if (!force && edDirty && (ed.subject.trim() || ed.body.trim())) saveDraft(true).then(go, function(){}); else go();
+  }
+  function sampleName(){ var a = audienceOf(ed.audience); return a.length ? a[0].name : "Aysel"; }
+  function updatePreview(){
+    readEditor();
+    var name = sampleName();
+    $("pvFrame").srcdoc = renderEmail({ headline: ed.headline, body: ed.body, btnText: ed.btnText, btnUrl: ed.btnUrl, name: name, unsubUrl: "#" }).html;
+    $("pvSubject").textContent = personalize_(ed.subject, name) || "(mövzu yoxdur)";
+    $("pvName").textContent = name;
+    $("edCount").textContent = audienceOf(ed.audience).length;
+  }
+  function renderAudChips(){
+    var a = ed.audience;
+    $("edStages").innerHTML = STAGES.map(function(s){ return '<button type="button" data-k="' + esc(s) + '" class="' + (a.stages.indexOf(s) > -1 ? "on" : "") + '" aria-pressed="' + (a.stages.indexOf(s) > -1) + '">' + esc(s) + '</button>'; }).join("");
+    var srcs = {}; state.leads.forEach(function(l){ srcs[l.src || ""] = 1; });
+    $("edSources").innerHTML = Object.keys(srcs).sort().map(function(s){ return '<button type="button" data-k="' + esc(s) + '" class="' + (a.sources.indexOf(s) > -1 ? "on" : "") + '" aria-pressed="' + (a.sources.indexOf(s) > -1) + '">' + esc(srcName(s)) + '</button>'; }).join("");
+  }
+  function toggleIn(list, k){ var i = list.indexOf(k); if (i > -1) list.splice(i, 1); else list.push(k); }
+  $("edStages").addEventListener("click", function(e){ var b = e.target.closest("button"); if (!b) return; toggleIn(ed.audience.stages, b.getAttribute("data-k")); edDirty = true; renderAudChips(); updatePreview(); });
+  $("edSources").addEventListener("click", function(e){ var b = e.target.closest("button"); if (!b) return; toggleIn(ed.audience.sources, b.getAttribute("data-k")); edDirty = true; renderAudChips(); updatePreview(); });
+  Object.keys(F).forEach(function(k){ $(F[k]).addEventListener("input", function(){ edDirty = true; clearTimeout(pvT); pvT = setTimeout(updatePreview, 150); hideConfirm(); }); });
+
+  function validate(full){
+    readEditor();
+    if (ed.btnUrl.trim() && !/^https?:\/\//.test(ed.btnUrl.trim())) return "Düymə linki http:// və ya https:// ilə başlamalıdır.";
+    if (ed.btnUrl.trim() && !ed.btnText.trim()) return "Düymə üçün mətn yazın.";
+    if (full && !ed.subject.trim()) return "Mövzu yazın.";
+    if (full && !ed.body.trim()) return "Məktubun mətnini yazın.";
+    return "";
+  }
+  function flashSaved(){ var s = $("edSaved"); s.classList.add("show"); setTimeout(function(){ s.classList.remove("show"); }, 1800); }
+  function saveDraft(silent){
+    var err = validate(false); if (err) { toast(err); return Promise.reject(err); }
+    if (!ed.name.trim()) ed.name = ed.subject.trim().slice(0, 60) || "Adsız kampaniya";
+    return call("adminSaveCampaign", ed).then(function(c){
+      ed.id = c.id; edDirty = false; $("edDelete").hidden = false; $("edTitle").textContent = "Qaralama";
+      $("edName").value = ed.name;
+      var i = -1; cstate.camps.forEach(function(x, k){ if (x.id === c.id) i = k; });
+      if (i > -1) cstate.camps[i] = c; else cstate.camps.unshift(c);
+      renderCamps(); flashSaved(); if (!silent) toast("Qaralama saxlanıldı");
+      return c;
+    }).catch(function(e){ toast("Saxlamaq alınmadı: " + e); throw e; });
+  }
+  function showConfirm(text, yesLabel, onYes){ $("edConfirmText").textContent = text; $("edConfirmYes").textContent = yesLabel; confirmYes = onYes; $("edConfirm").classList.add("show"); $("edConfirmYes").focus(); }
+  function hideConfirm(){ $("edConfirm").classList.remove("show"); confirmYes = null; }
+  function busy(btn, on){ btn.disabled = on; btn.classList.toggle("spin", on); }
+
+  $("edClose").addEventListener("click", function(){ closeEditor(false); });
+  $("edSave").addEventListener("click", function(){ saveDraft(false).catch(function(){}); });
+  $("edTest").addEventListener("click", function(){
+    var err = validate(true); if (err) return toast(err);
+    var to = $("edTestTo").value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(to)) return toast("Sınaq üçün düzgün e-poçt yazın.");
+    var b = $("edTest"); busy(b, true);
+    call("adminTestCampaign", readEditor(), to).then(function(){ toast("Sınaq məktubu göndərildi: " + to); loadCamps(true); })
+      .catch(function(e){ toast("Göndərmək alınmadı: " + e); }).then(function(){ busy(b, false); });
+  });
+  $("edStart").addEventListener("click", function(){
+    var err = validate(true); if (err) return toast(err);
+    var n = audienceOf(ed.audience).length;
+    if (!n) return toast("Auditoriyada aktiv alıcı yoxdur. Filtrləri dəyişin.");
+    saveDraft(true).then(function(){
+      var left = cstate.email && cstate.email.left;
+      var extra = (left !== undefined && left < n) ? " Bu gün yalnız " + left + " məktub göndərmək olar, qalanları sabah avtomatik gedəcək." : "";
+      showConfirm(n + " nəfərə «" + personalize_(ed.subject, sampleName()) + "» göndəriləcək. Başlayandan sonra məktubu dəyişmək olmaz." + extra, "Bəli, " + n + " nəfərə göndər", function(){
+        var b = $("edConfirmYes"); busy(b, true);
+        call("adminStartCampaign", ed.id).then(function(c){
+          var i = -1; cstate.camps.forEach(function(x, k){ if (x.id === c.id) i = k; }); if (i > -1) cstate.camps[i] = c;
+          closeEditor(true); renderCamps(); toast("Göndərmə başladı: " + c.sent + " / " + c.total);
+          openDetail(c.id); loadCamps(true);
+        }).catch(function(e){ toast("Başlatmaq alınmadı: " + e); }).then(function(){ busy(b, false); hideConfirm(); });
+      });
+    }, function(){});
+  });
+  $("edDelete").addEventListener("click", function(){
+    showConfirm("Bu qaralama silinəcək.", "Bəli, sil", function(){
+      call("adminCampaignAction", ed.id, "delete").then(function(){
+        var id = ed.id; cstate.camps = cstate.camps.filter(function(x){ return x.id !== id; });
+        closeEditor(true); renderCamps(); toast("Qaralama silindi");
+      }).catch(function(e){ toast("Silmək alınmadı: " + e); hideConfirm(); });
+    });
+  });
+  $("edConfirmNo").addEventListener("click", hideConfirm);
+  $("edConfirmYes").addEventListener("click", function(){ if (confirmYes) confirmYes(); });
+
+  /* ---------- kampaniya detalları ---------- */
+  var cdrawer = $("cdrawer");
+  function openDetail(id){
+    cstate.open = id;
+    var c = cstate.camps.filter(function(x){ return x.id === id; })[0];
+    if (c) fillDetail(c, null);
+    lastFocus = document.activeElement;
+    cdrawer.classList.add("open"); document.body.style.overflow = "hidden";
+    cdrawer.querySelector(".x").focus();
+    refreshDetail(id);
+  }
+  function refreshDetail(id){
+    call("adminCampaignDetail", id).then(function(d){ if (cstate.open === id) fillDetail(d.campaign, d.errors); })
+      .catch(function(e){ toast("Detalları yükləmək alınmadı: " + e); });
+  }
+  function closeDetail(){ cstate.open = null; $("cConfirm").classList.remove("show"); cdrawer.classList.remove("open"); document.body.style.overflow = ""; if (lastFocus && lastFocus.focus) lastFocus.focus(); }
+  function fillDetail(c, errors){
+    $("cName").textContent = c.name;
+    $("cSub").innerHTML = cpill(c.status);
+    var t = c.total || 0, pct = function(n){ return t ? (n / t * 100) + "%" : "0"; };
+    $("cProg").innerHTML =
+      '<div class="prog" style="height:12px"><i class="ps" style="width:' + pct(c.sent) + '"></i><i class="pf" style="width:' + pct(c.failed) + '"></i><i class="pk" style="width:' + pct(c.skipped) + '"></i></div>' +
+      '<div class="legend" style="margin-top:8px"><span style="--c:var(--ok)">Göndərildi: ' + c.sent + '</span><span style="--c:var(--err)">Xəta: ' + c.failed + '</span>' +
+      '<span style="--c:#B9B4AD">Ötürüldü: ' + c.skipped + '</span><span style="--c:#F2F0EC">Növbədə: ' + c.queued + '</span><span>Cəmi: ' + t + '</span></div>';
+    var acts = [];
+    if (isActive(c)) acts.push(["pause", "Dayandır"]);
+    if (c.status === "Dayandırılıb") acts.push(["resume", "Davam et"]);
+    if (isActive(c) || c.status === "Dayandırılıb") acts.push(["cancel", "Ləğv et"]);
+    acts.push(["duplicate", "Kopyala"]);
+    $("cActs").innerHTML = acts.map(function(a){ return '<button class="btn' + (a[0] === "resume" ? " pri" : "") + '" type="button" data-act="' + a[0] + '">' + a[1] + '</button>'; }).join("");
+    var aud = c.audience || {}, audTxt = [(aud.stages && aud.stages.length ? aud.stages.join(", ") : "bütün mərhələlər"), (aud.sources && aud.sources.length ? aud.sources.map(srcName).join(", ") : "bütün mənbələr")].join(" · ");
+    $("cInfo").innerHTML = [["Mövzu", esc(c.subject)], ["Auditoriya", esc(audTxt)], ["Yaradılıb", esc(fmtDate(c.created, true))],
+      ["Başladı", c.started ? esc(fmtDate(c.started, true)) : "–"], ["Bitdi", c.finished ? esc(fmtDate(c.finished, true)) : "–"]]
+      .map(function(r){ return "<dt>" + r[0] + "</dt><dd>" + r[1] + "</dd>"; }).join("");
+    if (errors) {
+      $("cErrSec").hidden = !errors.length;
+      $("cErrs").innerHTML = errors.map(function(x){ return "<tr><td>" + esc(x.email) + "</td><td>" + esc(x.status) + ": " + esc(x.error) + "</td></tr>"; }).join("");
+    }
+    $("cFrame").srcdoc = renderEmail({ headline: c.headline, body: c.body, btnText: c.btnText, btnUrl: c.btnUrl, name: "Aysel", unsubUrl: "#" }).html;
+  }
+  function campAction(act){
+    var id = cstate.open;
+    return call("adminCampaignAction", id, act).then(function(c){
+      if (act === "duplicate") { cstate.camps.unshift(c); renderCamps(); closeDetail(); openEditor(c); toast("Surət yaradıldı: redaktə edib göndərə bilərsiniz"); return; }
+      var i = -1; cstate.camps.forEach(function(x, k){ if (x.id === c.id) i = k; }); if (i > -1) cstate.camps[i] = c;
+      renderCamps(); fillDetail(c, null); refreshDetail(c.id);
+      toast({ pause: "Dayandırıldı", resume: "Davam edir", cancel: "Ləğv edildi" }[act] || "Hazırdır");
+    }).catch(function(e){ toast("Alınmadı: " + e); });
+  }
+  cdrawer.addEventListener("click", function(e){
+    if (e.target.closest("[data-close]")) return closeDetail();
+    var b = e.target.closest("[data-act]"); if (!b) return;
+    var act = b.getAttribute("data-act");
+    if (act === "cancel") { $("cConfirm").classList.add("show"); $("cConfirmYes").focus(); return; }
+    busy(b, true); campAction(act).then(function(){ busy(b, false); });
+  });
+  $("cConfirmNo").addEventListener("click", function(){ $("cConfirm").classList.remove("show"); });
+  $("cConfirmYes").addEventListener("click", function(){ $("cConfirm").classList.remove("show"); campAction("cancel"); });
+
+  /* ---------- tablar ---------- */
+  function setView(v){
+    cstate.view = v;
+    document.querySelectorAll(".tabs button").forEach(function(b){ var on = b.getAttribute("data-view") === v; b.classList.toggle("on", on); b.setAttribute("aria-selected", on); });
+    $("viewLeads").hidden = v !== "leads"; $("viewCamps").hidden = v !== "camps";
+    $("csv").hidden = v !== "leads";
+    if (v === "camps") { if (cstate.loaded) renderCamps(); loadCamps(cstate.loaded); }
+  }
+  document.querySelectorAll(".tabs button").forEach(function(b){ b.addEventListener("click", function(){ setView(b.getAttribute("data-view")); }); });
+  $("newCamp").addEventListener("click", function(){ openEditor(null); });
+  $("refresh").addEventListener("click", function(){ if (cstate.view === "camps") loadCamps(false); });
+  document.addEventListener("keydown", function(e){
+    if (e.key !== "Escape") return;
+    if (editor.classList.contains("open")) { if ($("edConfirm").classList.contains("show")) hideConfirm(); else closeEditor(false); }
+    else if (cdrawer.classList.contains("open")) closeDetail();
+  });
+  // Göndərilən kampaniya varsa, siyahını 20 saniyədən bir yenilə
+  setInterval(function(){
+    if (document.hidden || cstate.view !== "camps" || editor.classList.contains("open")) return;
+    if (cstate.camps.some(isActive)) loadCamps(true);
+  }, 20000);
+
   if (!LIVE) $("demo").style.display = "block";
   load(false);
+  loadCamps(true);
 })();
 </script>
 </body>
