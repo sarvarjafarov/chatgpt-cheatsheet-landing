@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leads · CRM</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --mag:#FE00F6; --mag-d:#B800B2; --pink:#FBD8F6; --pink-2:#FDEBFB;
+  --ink:#141414; --ink-2:#2B2926; --paper:#F6F5F2; --card:#fff; --line:#E6E3DE; --mute:#6A655F;
+  --ok:#0F7B4A; --ok-bg:#E6F4EC; --warn:#8A5A00; --warn-bg:#FFF4D6; --err:#C4002B; --err-bg:#FFEDF0;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:14px/1.5 Manrope,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:inherit}
+h1,h2,h3{margin:0}
+.wrap{max-width:1280px;margin:0 auto;padding:0 16px 48px}
+:focus-visible{outline:3px solid var(--mag);outline-offset:2px}
+
+/* Top bar */
+.top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:16px 0}
+.brand{display:flex;align-items:center;gap:10px;margin-right:auto}
+.brand i{width:34px;height:34px;border-radius:10px;background:var(--ink);display:grid;place-content:center;color:var(--mag);font:800 15px/1 Unbounded,sans-serif;font-style:normal}
+.brand h1{font:800 18px/1.1 Unbounded,sans-serif}
+.brand small{display:block;color:var(--mute);font-size:12px;font-weight:600}
+.btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 12px;font-weight:700;font-size:13px;cursor:pointer;text-decoration:none;white-space:nowrap;min-height:38px}
+.btn:hover{border-color:#CFCBC5}
+.btn.pri{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn.mag{background:var(--mag);border-color:var(--mag);color:var(--ink)}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.btn svg{flex:0 0 16px}
+.spin svg{animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.demo{background:var(--warn-bg);color:var(--warn);border:1px dashed #D9B44A;border-radius:12px;padding:10px 14px;font-size:13px;font-weight:600;margin-bottom:14px;display:none}
+.err{background:var(--err-bg);color:var(--err);border-radius:12px;padding:12px 14px;font-weight:700;margin-bottom:14px;display:none}
+
+/* KPI tiles */
+.kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+.kpi span{display:block;color:var(--mute);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.kpi b{display:block;font:800 26px/1.15 Unbounded,sans-serif;margin-top:6px;font-variant-numeric:tabular-nums}
+.kpi small{display:block;color:var(--mute);font-size:12px;font-weight:600;margin-top:2px}
+.kpi small .up{color:var(--ok)} .kpi small .down{color:var(--err)}
+.kpi.dark{background:var(--ink);color:#fff;border-color:var(--ink)}
+.kpi.dark span,.kpi.dark small{color:rgba(255,255,255,.7)}
+
+/* Charts */
+.charts{display:grid;gap:10px;margin-top:10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px}
+.card h2{font:800 14px/1.3 Manrope,sans-serif;display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:12px}
+.card h2 small{color:var(--mute);font-weight:600;font-size:12px}
+.bars{position:relative;height:150px}
+.bars svg{display:block;width:100%;height:100%;overflow:visible}
+.bars .axis{fill:var(--mute);font-size:10.5px;font-weight:600}
+.bars .grid{stroke:var(--line);stroke-width:1}
+.bars rect.b{fill:var(--mag-d)}
+.bars rect.hit{fill:transparent;cursor:default}
+.bars g:hover rect.b{fill:var(--ink)}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:#fff;font-size:12px;font-weight:700;padding:6px 9px;border-radius:8px;white-space:nowrap;transform:translate(-50%,-110%);display:none;z-index:5}
+.hbar{display:grid;grid-template-columns:minmax(0,1fr);gap:9px}
+.hrow{display:grid;grid-template-columns:136px minmax(0,1fr) 40px;gap:10px;align-items:center;font-size:13px;cursor:pointer;border-radius:8px}
+.hrow:hover .lbl{text-decoration:underline}
+.hrow .lbl{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hrow .trk{height:12px;background:#F2F0EC;border-radius:0 4px 4px 0;overflow:hidden}
+.hrow .fill{height:100%;background:var(--mag-d);border-radius:0 4px 4px 0;min-width:2px}
+.hrow .val{text-align:right;font-weight:800;font-variant-numeric:tabular-nums}
+.hrow.active .lbl{color:var(--mag-d)}
+.empty{color:var(--mute);font-size:13px;padding:20px 0;text-align:center}
+
+/* Filters + table */
+.list{margin-top:10px;padding:0;overflow:hidden}
+.filters{display:flex;flex-wrap:wrap;gap:8px;padding:14px 16px;border-bottom:1px solid var(--line);align-items:center}
+.search{flex:1 1 220px;position:relative}
+.search input{width:100%;border:1px solid var(--line);border-radius:10px;padding:8px 12px 8px 34px;min-height:38px;background:#fff}
+.search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--mute)}
+select.f{border:1px solid var(--line);border-radius:10px;padding:8px 30px 8px 10px;min-height:38px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23141414' stroke-width='3'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center;-webkit-appearance:none;appearance:none;font-weight:600;max-width:100%}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:12px 16px;border-bottom:1px solid var(--line);scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;font-weight:700;font-size:12.5px;cursor:pointer;white-space:nowrap}
+.chip em{font-style:normal;color:var(--mute);margin-left:4px;font-variant-numeric:tabular-nums}
+.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.chip.on em{color:rgba(255,255,255,.7)}
+.count{color:var(--mute);font-size:12.5px;font-weight:600;padding:10px 16px}
+
+table{width:100%;border-collapse:collapse}
+th{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);text-align:left;font-weight:800;padding:10px 12px;border-bottom:1px solid var(--line);background:#FCFBFA;white-space:nowrap}
+th button{background:none;border:0;padding:0;font:inherit;color:inherit;text-transform:inherit;letter-spacing:inherit;cursor:pointer}
+td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--pink-2)}
+td .nm{font-weight:800;display:flex;align-items:center;gap:6px}
+td .sub{color:var(--mute);font-size:12.5px;word-break:break-all}
+td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:3px 9px;font-size:12px;font-weight:700;white-space:nowrap}
+.pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.st-0{background:var(--pink);color:#7A0076}
+.st-1{background:#EAF0FF;color:#2847A8}
+.st-2{background:var(--warn-bg);color:var(--warn)}
+.st-3{background:var(--ok-bg);color:var(--ok)}
+.st-4{background:#EFEDEA;color:#5E5A55}
+.tag{display:inline-block;border-radius:6px;padding:2px 7px;font-size:11.5px;font-weight:700;background:#F2F0EC;color:var(--ink-2)}
+.tag.unsub{background:var(--err-bg);color:var(--err)}
+.tag.mailerr{background:var(--warn-bg);color:var(--warn)}
+.ico-note{color:var(--mute)}
+.more{display:flex;justify-content:center;padding:14px}
+
+/* Drawer */
+.drawer{position:fixed;inset:0;z-index:30;display:none}
+.drawer.open{display:block}
+.drawer .bg{position:absolute;inset:0;background:rgba(20,20,20,.45)}
+.drawer .panel{position:absolute;right:0;top:0;bottom:0;width:min(460px,100%);background:#fff;display:flex;flex-direction:column;box-shadow:-20px 0 50px rgba(0,0,0,.15);animation:in .2s ease-out}
+@keyframes in{from{transform:translateX(30px);opacity:.5}}
+.drawer header{display:flex;align-items:flex-start;gap:12px;padding:18px 18px 14px;border-bottom:1px solid var(--line)}
+.drawer header h2{font:800 18px/1.25 Unbounded,sans-serif;word-break:break-word}
+.drawer header p{margin:4px 0 0;color:var(--mute);font-size:12.5px}
+.x{margin-left:auto;border:0;background:#F2F0EC;width:36px;height:36px;border-radius:50%;font-size:20px;line-height:1;cursor:pointer;flex:0 0 36px}
+.drawer .body{overflow:auto;padding:16px 18px 24px;display:grid;gap:18px;align-content:start}
+.sec h3{font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--mute);font-weight:800;margin-bottom:8px}
+.acts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.acts .btn{justify-content:center}
+.warnbox{background:var(--err-bg);color:var(--err);border-radius:10px;padding:10px 12px;font-weight:700;font-size:13px}
+.stages{display:flex;flex-wrap:wrap;gap:6px}
+.stages button{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:7px 12px;font-weight:700;font-size:12.5px;cursor:pointer}
+.stages button.on{border-color:var(--ink);background:var(--ink);color:#fff}
+textarea{width:100%;min-height:110px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;resize:vertical;background:#fff}
+textarea:focus{outline:none;border-color:var(--ink);box-shadow:0 0 0 3px var(--pink)}
+.row{display:flex;gap:8px;align-items:center;margin-top:8px}
+.saved{color:var(--ok);font-weight:700;font-size:12.5px;opacity:0;transition:opacity .2s}
+.saved.show{opacity:1}
+dl{display:grid;grid-template-columns:120px minmax(0,1fr);gap:7px 12px;margin:0;font-size:13px}
+dt{color:var(--mute);font-weight:600}
+dd{margin:0;font-weight:600;word-break:break-word}
+
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;font-weight:700;font-size:13px;z-index:40;display:none;max-width:calc(100% - 32px)}
+
+/* Mobile: table → cards */
+@media (max-width:759px){
+  .brand{flex:1 0 100%}
+  .top .btn{flex:1;justify-content:center}
+  thead{display:none}
+  table,tbody,tr,td{display:block;width:100%}
+  tbody tr{padding:12px 16px;border-bottom:1px solid var(--line);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px}
+  td{padding:0;border:0}
+  td.c-name{grid-column:1}
+  td.c-stage{grid-column:2;grid-row:1;text-align:right}
+  td.c-phone,td.c-src{display:inline}
+  td.c-meta{grid-column:1 / -1;color:var(--mute);font-size:12.5px}
+  td.c-phone,td.c-src,td.c-date{display:none}
+}
+@media (min-width:760px){
+  .wrap{padding:0 24px 48px}
+  .kpis{grid-template-columns:repeat(3,minmax(0,1fr))}
+  td.c-meta{display:none}
+}
+@media (min-width:1100px){
+  .kpis{grid-template-columns:repeat(6,minmax(0,1fr))}
+  .charts{grid-template-columns:1.5fr 1fr 1fr}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand"><i>CA</i><div><h1>Leads · CRM</h1><small id="updated">Yüklənir…</small></div></div>
+    <a class="btn" id="sheetLink" href="#" target="_blank" rel="noopener" style="display:none">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 9h16M4 15h16M10 3v18"/></svg>Cədvəl</a>
+    <button class="btn" id="csv" type="button">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>CSV</button>
+    <button class="btn pri" id="refresh" type="button">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg>Yenilə</button>
+  </div>
+
+  <div class="demo" id="demo">Demo rejim: bu, nümunə məlumatlardır. Panel Apps Script-dən açılanda real lead-lər görünəcək.</div>
+  <div class="err" id="err"></div>
+
+  <section class="kpis" aria-label="Göstəricilər">
+    <div class="kpi dark"><span>Cəmi lead</span><b id="kTotal">–</b><small id="kTotalS">&nbsp;</small></div>
+    <div class="kpi"><span>Bu gün</span><b id="kToday">–</b><small id="kTodayS">&nbsp;</small></div>
+    <div class="kpi"><span>Son 7 gün</span><b id="kWeek">–</b><small id="kWeekS">&nbsp;</small></div>
+    <div class="kpi"><span>Yeni (işlənməyib)</span><b id="kNew">–</b><small id="kNewS">&nbsp;</small></div>
+    <div class="kpi"><span>Qeydiyyatdan keçdi</span><b id="kWon">–</b><small id="kWonS">&nbsp;</small></div>
+    <div class="kpi"><span>Abunədən çıxıb</span><b id="kUnsub">–</b><small id="kUnsubS">&nbsp;</small></div>
+  </section>
+
+  <section class="charts">
+    <div class="card"><h2>Gündəlik lead-lər <small>son 30 gün</small></h2><div class="bars" id="daily"><div class="tip" id="tip"></div></div></div>
+    <div class="card"><h2>Mənbələr <small>klikləyib süzün</small></h2><div class="hbar" id="sources"></div></div>
+    <div class="card"><h2>Satış mərhələləri <small>klikləyib süzün</small></h2><div class="hbar" id="funnel"></div></div>
+  </section>
+
+  <section class="card list" aria-label="Lead siyahısı">
+    <div class="filters">
+      <label class="search"><span class="sr" hidden>Axtarış</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <input id="q" type="search" placeholder="Ad, e-poçt, nömrə və ya qeyd…" autocomplete="off"></label>
+      <select class="f" id="fSrc" aria-label="Mənbə"><option value="">Bütün mənbələr</option></select>
+      <select class="f" id="fPeriod" aria-label="Dövr">
+        <option value="">Bütün vaxt</option><option value="1">Bu gün</option><option value="7">Son 7 gün</option><option value="30">Son 30 gün</option></select>
+      <select class="f" id="fStatus" aria-label="Status">
+        <option value="">Hamısı</option><option value="Aktiv">Yalnız aktiv</option><option value="Abunədən çıxıb">Abunədən çıxanlar</option></select>
+    </div>
+    <div class="chips" id="chips" role="tablist" aria-label="Mərhələ"></div>
+    <div class="count" id="count"></div>
+    <table>
+      <thead><tr>
+        <th><button type="button" data-sort="name">Ad</button></th>
+        <th>Telefon</th>
+        <th>Mənbə</th>
+        <th><button type="button" data-sort="at" id="sortAt">Tarix ↓</button></th>
+        <th>Mərhələ</th>
+      </tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <div class="empty" id="empty" style="display:none">Bu filtrlərə uyğun lead yoxdur.</div>
+    <div class="more" id="moreBox" style="display:none"><button class="btn" id="more" type="button">Daha çox göstər</button></div>
+  </section>
+</div>
+
+<div class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="dName">
+  <div class="bg" data-close></div>
+  <div class="panel">
+    <header><div><h2 id="dName"></h2><p id="dSub"></p></div><button class="x" type="button" data-close aria-label="Bağla">×</button></header>
+    <div class="body">
+      <div class="sec" id="dActs"></div>
+      <div class="sec"><h3>Mərhələ</h3><div class="stages" id="dStages"></div></div>
+      <div class="sec"><h3>Qeyd</h3>
+        <textarea id="dNote" placeholder="Məsələn: 12.11 zəng etdim, Python kursu ilə maraqlanır, yanvarda yenidən yazmaq."></textarea>
+        <div class="row"><button class="btn pri" id="dSave" type="button">Qeydi saxla</button><span class="saved" id="dSaved">Saxlanıldı ✓</span></div>
+      </div>
+      <div class="sec"><h3>Məlumat</h3><dl id="dInfo"></dl></div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+  "use strict";
+  var KEY = '<?!= key ?>';
+  var LIVE = typeof google !== "undefined" && google.script && google.script.run;
+  var $ = function(id){ return document.getElementById(id); };
+  var DAY = 864e5;
+  var STAGES = ["Yeni", "Əlaqə saxlanıldı", "Maraqlanır", "Qeydiyyatdan keçdi", "Maraqlanmır"];
+  var state = { leads: [], q: "", src: null, stage: "", period: "", status: "", sort: "at", dir: -1, limit: 50, open: null };
+
+  /* ---------- server ---------- */
+  function call(fn){
+    var args = Array.prototype.slice.call(arguments, 1);
+    return new Promise(function(res, rej){
+      if (!LIVE) return res(demo[fn].apply(null, args));
+      var r = google.script.run.withSuccessHandler(res).withFailureHandler(function(e){ rej(e && e.message || String(e)); });
+      r[fn].apply(r, [KEY].concat(args));
+    });
+  }
+
+  /* ---------- demo data (panel lokal açılanda) ---------- */
+  var demo = (function(){
+    var names = ["Aysel","Murad","Leyla","Rəşad","Nigar","Elvin","Günel","Tural","Səbinə","Orxan","Aytən","Kamran","Nərmin","Fərid","Zəhra","Emil","Lalə","Rauf","Aynur","Vüsal"];
+    var srcs = ["telim","telim","telim","instagram","instagram","linkedin","", "", "facebook"];
+    var ops = ["50","51","55","70","77","99","10"];
+    var list = [], now = Date.now(), seed = 7;
+    function rnd(){ seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
+    for (var i = 0; i < 168; i++) {
+      var age = Math.pow(rnd(), 1.6) * 34 * DAY, n = names[Math.floor(rnd() * names.length)];
+      var st = rnd() < .55 ? 0 : rnd() < .4 ? 1 : rnd() < .5 ? 2 : rnd() < .6 ? 3 : 4;
+      var s = srcs[Math.floor(rnd() * srcs.length)];
+      list.push({ id: "d" + i, at: new Date(now - age).toISOString(), name: n, email: n.toLowerCase().replace(/ə/g,"e").replace(/ü/g,"u") + (100 + i) + "@gmail.com",
+        phone: "+994" + ops[Math.floor(rnd() * ops.length)] + String(1000000 + Math.floor(rnd() * 8999999)).slice(0, 7),
+        src: s, medium: s === "instagram" ? "bio" : s === "linkedin" ? "post" : "", campaign: s === "telim" ? "ali-mehkeme" : "", ref: "",
+        status: rnd() < .06 ? "Abunədən çıxıb" : "Aktiv", unsubAt: "", mail: rnd() < .03 ? "Xəta: Service invoked too many times" : "Göndərildi",
+        stage: STAGES[st], note: st > 0 && rnd() < .5 ? "Zəng etdim, kurslar barədə məlumat istədi." : "", contacted: st > 0 ? new Date(now - age / 2).toISOString() : "" });
+    }
+    return {
+      adminData: function(){ return { leads: JSON.parse(JSON.stringify(list)), stages: STAGES, at: new Date().toISOString(), sheetUrl: "" }; },
+      adminUpdate: function(id, p){
+        var l = list.filter(function(x){ return x.id === id; })[0];
+        if (p.stage !== undefined) l.stage = p.stage;
+        if (p.note !== undefined) l.note = p.note;
+        if (p.contacted) l.contacted = new Date().toISOString();
+        return JSON.parse(JSON.stringify(l));
+      }
+    };
+  })();
+
+  /* ---------- helpers ---------- */
+  function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return { "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]; }); }
+  function startOfDay(t){ var d = new Date(t); d.setHours(0,0,0,0); return d.getTime(); }
+  function fmtDate(iso, withTime){
+    if (!iso) return "–";
+    var d = new Date(iso); if (isNaN(d)) return esc(iso);
+    var p = function(n){ return (n < 10 ? "0" : "") + n; };
+    return p(d.getDate()) + "." + p(d.getMonth() + 1) + "." + d.getFullYear() + (withTime ? " " + p(d.getHours()) + ":" + p(d.getMinutes()) : "");
+  }
+  function rel(iso){
+    var t = new Date(iso).getTime(); if (isNaN(t)) return "–";
+    var s = (Date.now() - t) / 1000;
+    if (s < 60) return "indicə";
+    if (s < 3600) return Math.floor(s / 60) + " dəq əvvəl";
+    if (t >= startOfDay(Date.now())) return "bu gün, " + fmtDate(iso, true).slice(11);
+    if (t >= startOfDay(Date.now()) - DAY) return "dünən, " + fmtDate(iso, true).slice(11);
+    if (s < 7 * 86400) return Math.floor(s / 86400) + " gün əvvəl";
+    return fmtDate(iso);
+  }
+  function fmtPhone(p){ var m = String(p).match(/^\+994(\d{2})(\d{3})(\d{2})(\d{2})$/); return m ? "+994 " + m[1] + " " + m[2] + " " + m[3] + " " + m[4] : p; }
+  function srcName(s){ return s || "Birbaşa"; }
+  function stIdx(s){ var i = STAGES.indexOf(s); return i < 0 ? 0 : i; }
+  function pill(s){ return '<span class="pill st-' + stIdx(s) + '">' + esc(s) + '</span>'; }
+  function toast(msg){ var t = $("toast"); t.textContent = msg; t.style.display = "block"; clearTimeout(toast.t); toast.t = setTimeout(function(){ t.style.display = "none"; }, 2600); }
+  function showErr(m){ var e = $("err"); e.textContent = m; e.style.display = m ? "block" : "none"; }
+
+  /* ---------- load ---------- */
+  var loading = false;
+  function load(quiet){
+    if (loading) return; loading = true;
+    $("refresh").classList.add("spin");
+    call("adminData").then(function(d){
+      state.leads = d.leads || [];
+      if (d.stages && d.stages.length) STAGES = d.stages;
+      if (d.sheetUrl) { $("sheetLink").href = d.sheetUrl; $("sheetLink").style.display = ""; }
+      $("updated").textContent = "Yeniləndi: " + fmtDate(d.at, true).slice(11) + " · " + state.leads.length + " lead";
+      showErr("");
+      render();
+      if (state.open) { var l = byId(state.open); if (l) fillDrawer(l, true); }
+    }).catch(function(e){
+      showErr("Məlumatları yükləmək alınmadı: " + e);
+      if (!quiet) toast("Yükləmə xətası");
+    }).then(function(){ loading = false; $("refresh").classList.remove("spin"); });
+  }
+  function byId(id){ for (var i = 0; i < state.leads.length; i++) if (state.leads[i].id === id) return state.leads[i]; return null; }
+
+  /* ---------- filtering ---------- */
+  function filtered(ignoreStage, ignoreSrc){
+    var q = state.q.trim().toLowerCase(), qd = q.replace(/\D/g, "");
+    var from = state.period ? (state.period === "1" ? startOfDay(Date.now()) : Date.now() - Number(state.period) * DAY) : 0;
+    return state.leads.filter(function(l){
+      if (!ignoreStage && state.stage && l.stage !== state.stage) return false;
+      if (!ignoreSrc && state.src !== null && (l.src || "") !== state.src) return false;
+      if (state.status && l.status !== state.status) return false;
+      if (from && new Date(l.at).getTime() < from) return false;
+      if (q) {
+        var hay = (l.name + " " + l.email + " " + l.note + " " + l.src + " " + l.campaign).toLowerCase();
+        if (hay.indexOf(q) < 0 && !(qd.length >= 3 && l.phone.replace(/\D/g, "").indexOf(qd) > -1)) return false;
+      }
+      return true;
+    });
+  }
+
+  /* ---------- render ---------- */
+  function render(){ renderKpis(); renderDaily(); renderSources(); renderFunnel(); renderChips(); renderRows(); renderSrcSelect(); }
+
+  function renderKpis(){
+    var L = state.leads, now = Date.now(), today = startOfDay(now);
+    var t = 0, y = 0, w = 0, pw = 0, nw = 0, won = 0, un = 0, mailErr = 0;
+    L.forEach(function(l){
+      var a = new Date(l.at).getTime();
+      if (a >= today) t++; else if (a >= today - DAY) y++;
+      if (a >= now - 7 * DAY) w++; else if (a >= now - 14 * DAY) pw++;
+      if (l.stage === STAGES[0] && l.status !== "Abunədən çıxıb") nw++;
+      if (l.stage === STAGES[3]) won++;
+      if (l.status === "Abunədən çıxıb") un++;
+      if (/^Xəta/.test(l.mail)) mailErr++;
+    });
+    var pct = function(a, b){ return b ? Math.round(a / b * 1000) / 10 + "%" : "0%"; };
+    $("kTotal").textContent = L.length;
+    $("kTotalS").textContent = mailErr ? mailErr + " məktub göndərilməyib" : "hamısına məktub gedib";
+    $("kToday").textContent = t; $("kTodayS").textContent = "dünən: " + y;
+    $("kWeek").textContent = w;
+    var diff = w - pw;
+    $("kWeekS").innerHTML = pw ? '<span class="' + (diff >= 0 ? "up" : "down") + '">' + (diff >= 0 ? "▲ " : "▼ ") + Math.abs(Math.round(diff / pw * 100)) + "%</span> əvvəlki 7 günə görə" : "əvvəlki 7 gün: " + pw;
+    $("kNew").textContent = nw; $("kNewS").textContent = "əlaqə gözləyir";
+    $("kWon").textContent = won; $("kWonS").textContent = "konversiya: " + pct(won, L.length);
+    $("kUnsub").textContent = un; $("kUnsubS").textContent = pct(un, L.length) + " · reklam göndərməyin";
+  }
+
+  function renderDaily(){
+    var box = $("daily"), tip = $("tip"), N = 30, today = startOfDay(Date.now());
+    var counts = []; for (var i = 0; i < N; i++) counts.push(0);
+    state.leads.forEach(function(l){
+      var d = Math.round((today - startOfDay(new Date(l.at).getTime())) / DAY);
+      if (d >= 0 && d < N) counts[N - 1 - d]++;
+    });
+    var max = Math.max.apply(null, counts.concat([1]));
+    var nice = max <= 5 ? 5 : Math.ceil(max / 5) * 5;
+    var W = box.clientWidth || 600, H = 150, padL = 24, padB = 20, padT = 6;
+    var cw = (W - padL) / N, bw = Math.max(cw - 2, 1);
+    var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Son 30 gündə gündəlik lead sayı">';
+    [0, .5, 1].forEach(function(f){
+      var yy = padT + (H - padB - padT) * (1 - f);
+      s += '<line class="grid" x1="' + padL + '" x2="' + W + '" y1="' + yy + '" y2="' + yy + '"/>';
+      s += '<text class="axis" x="' + (padL - 6) + '" y="' + (yy + 3.5) + '" text-anchor="end">' + Math.round(nice * f) + '</text>';
+    });
+    counts.forEach(function(c, i){
+      var h = (H - padB - padT) * c / nice, x = padL + i * cw + 1, y = H - padB - h;
+      var date = new Date(today - (N - 1 - i) * DAY);
+      var label = fmtDate(date.toISOString()).slice(0, 5);
+      s += '<g data-i="' + i + '" data-tip="' + label + ': ' + c + ' lead">';
+      s += '<rect class="hit" x="' + (x - 1) + '" y="' + padT + '" width="' + cw + '" height="' + (H - padB - padT) + '"/>';
+      if (c) s += '<path class="b" d="' + barPath(x, y, bw, h) + '" style="fill:var(--mag-d)"/>';
+      s += '</g>';
+      if (i % 5 === 4 || i === 0) s += '<text class="axis" x="' + (x + bw / 2) + '" y="' + (H - 5) + '" text-anchor="middle">' + label + '</text>';
+    });
+    s += '</svg>';
+    box.innerHTML = s; box.appendChild(tip);
+    box.querySelectorAll("g[data-tip]").forEach(function(g){
+      g.addEventListener("mouseenter", function(){
+        var r = g.getBoundingClientRect(), b = box.getBoundingClientRect();
+        tip.textContent = g.getAttribute("data-tip"); tip.style.display = "block";
+        tip.style.left = (r.left - b.left + r.width / 2) + "px"; tip.style.top = (r.top - b.top + 6) + "px";
+        var p = g.querySelector("path"); if (p) p.style.fill = "var(--ink)";
+      });
+      g.addEventListener("mouseleave", function(){ tip.style.display = "none"; var p = g.querySelector("path"); if (p) p.style.fill = "var(--mag-d)"; });
+    });
+  }
+  // 4px yuvarlaq yuxarı künclər, aşağı tərəf düz (bazaya bağlı)
+  function barPath(x, y, w, h){
+    var r = Math.min(4, w / 2, h);
+    return "M" + x + "," + (y + h) + "V" + (y + r) + "Q" + x + "," + y + " " + (x + r) + "," + y + "H" + (x + w - r) + "Q" + (x + w) + "," + y + " " + (x + w) + "," + (y + r) + "V" + (y + h) + "Z";
+  }
+
+  function hbars(el, rows, activeKey, onClick){
+    if (!rows.length) { el.innerHTML = '<div class="empty">Hələ məlumat yoxdur.</div>'; return; }
+    var max = Math.max.apply(null, rows.map(function(r){ return r.v; }).concat([1]));
+    el.innerHTML = rows.map(function(r){
+      return '<div class="hrow' + (r.k === activeKey ? " active" : "") + '" data-k="' + esc(r.k) + '" role="button" tabindex="0" title="' + esc(r.l) + ': ' + r.v + '">' +
+        '<span class="lbl">' + esc(r.l) + '</span><span class="trk"><span class="fill" style="display:block;width:' + (r.v / max * 100) + '%"></span></span><span class="val">' + r.v + '</span></div>';
+    }).join("");
+    el.querySelectorAll(".hrow").forEach(function(row){
+      var go = function(){ onClick(row.getAttribute("data-k")); };
+      row.addEventListener("click", go);
+      row.addEventListener("keydown", function(e){ if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } });
+    });
+  }
+  function renderSources(){
+    var m = {};
+    filtered(false, true).forEach(function(l){ var k = l.src || ""; m[k] = (m[k] || 0) + 1; });
+    var rows = Object.keys(m).map(function(k){ return { k: k, l: srcName(k), v: m[k] }; }).sort(function(a, b){ return b.v - a.v; });
+    if (rows.length > 7) { var rest = rows.slice(6).reduce(function(a, r){ return a + r.v; }, 0); rows = rows.slice(0, 6).concat([{ k: "__other", l: "Digər", v: rest }]); }
+    hbars($("sources"), rows, state.src, function(k){
+      if (k === "__other") return;
+      state.src = state.src === k ? null : k; $("fSrc").value = state.src === null ? "" : "=" + state.src; state.limit = 50; render();
+    });
+  }
+  function renderFunnel(){
+    var list = filtered(true, false);
+    var rows = STAGES.map(function(s){ return { k: s, l: s, v: list.filter(function(l){ return l.stage === s; }).length }; });
+    hbars($("funnel"), rows, state.stage, function(k){ state.stage = state.stage === k ? "" : k; state.limit = 50; render(); });
+  }
+  function renderChips(){
+    var list = filtered(true, false);
+    var chips = [{ k: "", l: "Hamısı", v: list.length }].concat(STAGES.map(function(s){ return { k: s, l: s, v: list.filter(function(l){ return l.stage === s; }).length }; }));
+    $("chips").innerHTML = chips.map(function(c){
+      return '<button type="button" role="tab" class="chip' + (state.stage === c.k ? " on" : "") + '" aria-selected="' + (state.stage === c.k) + '" data-k="' + esc(c.k) + '">' + esc(c.l) + '<em>' + c.v + '</em></button>';
+    }).join("");
+  }
+  function renderSrcSelect(){
+    var sel = $("fSrc"), cur = sel.value, seen = {};
+    state.leads.forEach(function(l){ seen[l.src || ""] = 1; });
+    sel.innerHTML = '<option value="">Bütün mənbələr</option>' + Object.keys(seen).sort().map(function(k){ return '<option value="=' + esc(k) + '">' + esc(srcName(k)) + '</option>'; }).join("");
+    sel.value = state.src === null ? "" : "=" + state.src;
+    if (sel.value !== (state.src === null ? "" : "=" + state.src)) sel.value = cur;
+  }
+  function renderRows(){
+    var list = filtered().slice().sort(function(a, b){
+      var x = state.sort === "name" ? a.name.toLowerCase() : a.at, y = state.sort === "name" ? b.name.toLowerCase() : b.at;
+      return (x < y ? -1 : x > y ? 1 : 0) * state.dir;
+    });
+    $("count").textContent = list.length + " lead göstərilir" + (list.length !== state.leads.length ? " (cəmi " + state.leads.length + ")" : "");
+    $("sortAt").textContent = "Tarix" + (state.sort === "at" ? (state.dir < 0 ? " ↓" : " ↑") : "");
+    $("rows").innerHTML = list.slice(0, state.limit).map(function(l){
+      var unsub = l.status === "Abunədən çıxıb", mailErr = /^Xəta/.test(l.mail);
+      return '<tr data-id="' + esc(l.id) + '" tabindex="0">' +
+        '<td class="c-name"><div class="nm">' + esc(l.name) + (l.note ? ' <svg class="ico-note" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-label="Qeyd var"><path d="M5 4h14v12l-4 4H5z"/><path d="M15 20v-4h4"/></svg>' : "") +
+          (unsub ? ' <span class="tag unsub">Abunədən çıxıb</span>' : "") + (mailErr ? ' <span class="tag mailerr">Məktub xətası</span>' : "") + '</div><div class="sub">' + esc(l.email) + '</div></td>' +
+        '<td class="c-phone num">' + esc(fmtPhone(l.phone)) + '</td>' +
+        '<td class="c-src"><span class="tag">' + esc(srcName(l.src)) + '</span>' + (l.campaign ? '<div class="sub">' + esc(l.campaign) + '</div>' : "") + '</td>' +
+        '<td class="c-date num" title="' + esc(fmtDate(l.at, true)) + '">' + esc(rel(l.at)) + '</td>' +
+        '<td class="c-stage">' + pill(l.stage) + '</td>' +
+        '<td class="c-meta">' + esc(fmtPhone(l.phone)) + ' · ' + esc(srcName(l.src)) + ' · ' + esc(rel(l.at)) + '</td>' +
+      '</tr>';
+    }).join("");
+    $("empty").style.display = list.length ? "none" : "block";
+    $("moreBox").style.display = list.length > state.limit ? "flex" : "none";
+  }
+
+  /* ---------- drawer ---------- */
+  var drawer = $("drawer"), lastFocus = null;
+  function openDrawer(id){
+    var l = byId(id); if (!l) return;
+    state.open = id; lastFocus = document.activeElement;
+    fillDrawer(l, false);
+    drawer.classList.add("open"); document.body.style.overflow = "hidden";
+    drawer.querySelector(".x").focus();
+  }
+  function closeDrawer(){
+    if (noteDirty()) saveNote(true);
+    state.open = null; drawer.classList.remove("open"); document.body.style.overflow = "";
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+  function noteDirty(){ var l = state.open && byId(state.open); return !!l && $("dNote").value !== (l.note || ""); }
+  function fillDrawer(l, keepNote){
+    var unsub = l.status === "Abunədən çıxıb";
+    var wa = "https://wa.me/" + l.phone.replace(/\D/g, "");
+    $("dName").textContent = l.name;
+    $("dSub").textContent = "Gəlib: " + fmtDate(l.at, true) + " · " + srcName(l.src);
+    $("dActs").innerHTML = '<h3>Əlaqə</h3>' + (unsub
+      ? '<div class="warnbox">Bu şəxs abunədən çıxıb (' + esc(fmtDate(l.unsubAt, true)) + '). Ona reklam xarakterli məktub, SMS və ya WhatsApp göndərməyin.</div>'
+      : '<div class="acts">' +
+          '<a class="btn" href="tel:' + esc(l.phone) + '" data-act="call"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>Zəng</a>' +
+          '<a class="btn" href="' + esc(wa) + '" target="_blank" rel="noopener" data-act="wa"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 20l1.3-4A8 8 0 1 1 8 18.7z"/></svg>WhatsApp</a>' +
+          '<a class="btn" href="mailto:' + esc(l.email) + '" data-act="mail"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>E-poçt</a>' +
+        '</div>') +
+      '<div class="row"><button class="btn" type="button" id="dContacted">Əlaqə saxlanıldı kimi qeyd et</button></div>';
+    $("dStages").innerHTML = STAGES.map(function(s){ return '<button type="button" class="' + (l.stage === s ? "on" : "") + '" data-stage="' + esc(s) + '">' + esc(s) + '</button>'; }).join("");
+    if (!keepNote || !noteDirty()) $("dNote").value = l.note || "";
+    var info = [
+      ["E-poçt", esc(l.email)], ["Telefon", esc(fmtPhone(l.phone))], ["Status", esc(l.status)],
+      ["Son əlaqə", l.contacted ? esc(fmtDate(l.contacted, true)) : "–"],
+      ["Məktub", esc(l.mail || "–")], ["utm_source", esc(l.src || "–")], ["utm_medium", esc(l.medium || "–")],
+      ["utm_campaign", esc(l.campaign || "–")], ["Haradan gəlib", esc(l.ref || "–")], ["ID", esc(l.id)]
+    ];
+    $("dInfo").innerHTML = info.map(function(r){ return "<dt>" + r[0] + "</dt><dd>" + r[1] + "</dd>"; }).join("");
+  }
+  function update(patch, okMsg){
+    var id = state.open, l = byId(id); if (!l) return Promise.resolve();
+    var before = JSON.stringify(l);
+    // optimistik yeniləmə
+    if (patch.stage !== undefined) l.stage = patch.stage;
+    if (patch.note !== undefined) l.note = patch.note;
+    if (patch.contacted) l.contacted = new Date().toISOString();
+    render(); if (state.open === id) fillDrawer(l, true);
+    return call("adminUpdate", id, patch).then(function(fresh){
+      var i = state.leads.indexOf(l); if (i > -1 && fresh) state.leads[i] = fresh;
+      render(); if (state.open === id && fresh) fillDrawer(fresh, true);
+      if (okMsg) toast(okMsg);
+    }).catch(function(e){
+      var i = state.leads.indexOf(l); if (i > -1) state.leads[i] = JSON.parse(before);
+      render(); if (state.open === id) fillDrawer(state.leads[i], false);
+      toast("Saxlamaq alınmadı: " + e);
+      throw e;
+    });
+  }
+  function saveNote(silent){
+    var v = $("dNote").value;
+    return update({ note: v }, silent ? "Qeyd saxlanıldı" : null).then(function(){
+      var s = $("dSaved"); s.classList.add("show"); setTimeout(function(){ s.classList.remove("show"); }, 1800);
+    }).catch(function(){});
+  }
+
+  /* ---------- CSV ---------- */
+  function csv(){
+    var list = filtered();
+    var cols = [["Tarix", function(l){ return fmtDate(l.at, true); }], ["Ad", "name"], ["E-poçt", "email"], ["Telefon", "phone"], ["Mərhələ", "stage"], ["Status", "status"],
+      ["Qeyd", "note"], ["Son əlaqə", function(l){ return l.contacted ? fmtDate(l.contacted, true) : ""; }], ["utm_source", "src"], ["utm_medium", "medium"], ["utm_campaign", "campaign"]];
+    var cell = function(v){ v = String(v == null ? "" : v); if (/^[=+\-@]/.test(v)) v = "'" + v; return '"' + v.replace(/"/g, '""') + '"'; };
+    var out = [cols.map(function(c){ return cell(c[0]); }).join(",")].concat(list.map(function(l){
+      return cols.map(function(c){ return cell(typeof c[1] === "function" ? c[1](l) : l[c[1]]); }).join(",");
+    })).join("\r\n");
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob(["﻿" + out], { type: "text/csv;charset=utf-8" }));
+    a.download = "leads-" + new Date().toISOString().slice(0, 10) + ".csv"; a.target = "_self";
+    document.body.appendChild(a); a.click(); a.remove();
+    toast(list.length + " lead CSV-yə yazıldı");
+  }
+
+  /* ---------- events ---------- */
+  $("refresh").addEventListener("click", function(){ load(false); });
+  $("csv").addEventListener("click", csv);
+  var qt; $("q").addEventListener("input", function(){ var v = this.value; clearTimeout(qt); qt = setTimeout(function(){ state.q = v; state.limit = 50; render(); }, 150); });
+  $("fSrc").addEventListener("change", function(){ state.src = this.value ? this.value.slice(1) : null; state.limit = 50; render(); });
+  $("fPeriod").addEventListener("change", function(){ state.period = this.value; state.limit = 50; render(); });
+  $("fStatus").addEventListener("change", function(){ state.status = this.value; state.limit = 50; render(); });
+  $("chips").addEventListener("click", function(e){ var b = e.target.closest(".chip"); if (!b) return; state.stage = b.getAttribute("data-k"); state.limit = 50; render(); });
+  $("more").addEventListener("click", function(){ state.limit += 50; renderRows(); });
+  document.querySelectorAll("th button[data-sort]").forEach(function(b){
+    b.addEventListener("click", function(){ var k = b.getAttribute("data-sort"); if (state.sort === k) state.dir *= -1; else { state.sort = k; state.dir = k === "at" ? -1 : 1; } renderRows(); });
+  });
+  $("rows").addEventListener("click", function(e){ var tr = e.target.closest("tr[data-id]"); if (tr) openDrawer(tr.getAttribute("data-id")); });
+  $("rows").addEventListener("keydown", function(e){ if (e.key === "Enter") { var tr = e.target.closest("tr[data-id]"); if (tr) openDrawer(tr.getAttribute("data-id")); } });
+  drawer.addEventListener("click", function(e){
+    if (e.target.closest("[data-close]")) return closeDrawer();
+    var sb = e.target.closest("[data-stage]");
+    if (sb) { var s = sb.getAttribute("data-stage"); if (byId(state.open).stage !== s) update({ stage: s }, "Mərhələ: " + s).catch(function(){}); return; }
+    if (e.target.closest("#dContacted")) {
+      var l = byId(state.open), p = { contacted: true };
+      if (l.stage === STAGES[0]) p.stage = STAGES[1];
+      update(p, "Əlaqə qeyd olundu").catch(function(){});
+      return;
+    }
+    if (e.target.closest("#dSave")) return saveNote(false);
+    // Zəng / WhatsApp / e-poçt: «Yeni» lead-i avtomatik «Əlaqə saxlanıldı»-ya keçirir
+    if (e.target.closest("[data-act]")) {
+      var l2 = byId(state.open);
+      if (l2 && l2.stage === STAGES[0]) update({ stage: STAGES[1], contacted: true }, "Mərhələ: " + STAGES[1]).catch(function(){});
+      else if (l2) update({ contacted: true }).catch(function(){});
+    }
+  });
+  document.addEventListener("keydown", function(e){
+    if (!drawer.classList.contains("open")) return;
+    if (e.key === "Escape") closeDrawer();
+    if ((e.metaKey || e.ctrlKey) && e.key === "Enter" && document.activeElement === $("dNote")) saveNote(false);
+  });
+  var rt; window.addEventListener("resize", function(){ clearTimeout(rt); rt = setTimeout(renderDaily, 150); });
+  // Hər 60 saniyədən bir, səhifə görünəndə avtomatik yenilə
+  setInterval(function(){ if (!document.hidden && !drawer.classList.contains("open")) load(true); }, 60000);
+  document.addEventListener("visibilitychange", function(){ if (!document.hidden) load(true); });
+
+  if (!LIVE) $("demo").style.display = "block";
+  load(false);
+})();
+</script>
+</body>
+</html>
