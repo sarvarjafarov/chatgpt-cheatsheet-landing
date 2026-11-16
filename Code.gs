@@ -93,6 +93,7 @@ function doPost(e) {
  */
 function doGet(e) {
   const p = (e && e.parameter) || {};
+  rememberUrl_();
   if (p.admin) {
     if (!keyOk_(p.admin)) return page_('Giriş qadağandır', 'Bu link etibarsızdır. Düzgün linki Apps Script-də setup funksiyası göstərir.');
     rememberUrl_();
@@ -273,8 +274,12 @@ function adminUpdate(key, id, patch) {
 
 /** CRM panelinin linkini göstərir. */
 function adminLink() {
-  const url = ScriptApp.getService().getUrl();
-  if (!url) { console.warn('Əvvəlcə skripti veb tətbiq kimi dərc edin (Deploy → New deployment), sonra bu funksiyanı yenidən işə salın.'); return; }
+  const url = webappUrl_();
+  if (!url) {
+    console.warn('Dərc olunmuş /exec linki hələ məlum deyil. Skripti veb tətbiq kimi dərc edin (Deploy → New deployment), ' +
+      'Web app URL linkini brauzerdə bir dəfə açın, sonra bu funksiyanı yenidən işə salın.');
+    return;
+  }
   console.log('CRM paneli (linki heç kimlə paylaşmayın): ' + url + '?admin=' + adminKey_());
 }
 

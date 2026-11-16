@@ -158,16 +158,23 @@ function renderEmail_(c) {
 // ---------- abunədən çıxma linki ----------
 
 /** Veb tətbiqin /exec linki. Trigger-lərdə getUrl() etibarsız ola bildiyi üçün veb sorğularda yadda saxlanır. */
+// Google Workspace hesablarında getUrl() «/a/macros/<domen>/» formasını qaytarır; bu link kənar
+// istifadəçidən domen hesabına girişi tələb edə bilər. Ona görə həmişə ümumi «/macros/s/.../exec» formasını saxlayırıq.
+function publicUrl_(u) { return String(u || '').replace(/\/a\/(?:macros\/)?[^/]+\/(?:macros\/)?s\//, '/macros/s/'); }
 function rememberUrl_() {
   try {
-    const u = ScriptApp.getService().getUrl();
-    if (u && /\/exec$/.test(u)) PropertiesService.getScriptProperties().setProperty('WEBAPP_URL', u);
+    const u = publicUrl_(ScriptApp.getService().getUrl());
+    if (u && /\/exec$/.test(u)) {
+      const p = PropertiesService.getScriptProperties();
+      if (p.getProperty('WEBAPP_URL') !== u) p.setProperty('WEBAPP_URL', u);
+    }
   } catch (e) {}
 }
+/** Yalnız dərc olunmuş /exec linki (redaktordakı /dev linki kənar istifadəçilər üçün işləmir). */
 function webappUrl_() {
   const saved = PropertiesService.getScriptProperties().getProperty('WEBAPP_URL');
   if (saved) return saved;
-  try { return ScriptApp.getService().getUrl() || ''; } catch (e) { return ''; }
+  try { const u = publicUrl_(ScriptApp.getService().getUrl()); return /\/exec$/.test(u) ? u : ''; } catch (e) { return ''; }
 }
 function unsubUrl_(email) {
   const base = webappUrl_();
