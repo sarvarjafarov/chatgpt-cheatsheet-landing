@@ -65,6 +65,16 @@ docker run -d --name chatgpt-landing -p 8080:80 --restart unless-stopped chatgpt
 
 The image is `nginx:alpine` with only the two public files. Put it behind the existing reverse proxy / TLS terminator.
 
+### Option C: Cloudflare Pages
+
+The repo is set up for Cloudflare Pages with Git integration: every push to `main` redeploys.
+
+- Build command: `sh deploy/build-pages.sh` (copies only `index.html`, `og-image.png` and `_headers` into `dist/`)
+- Build output directory: `dist`
+- Framework preset: None
+
+[`_headers`](_headers) sets the same security and cache headers as the nginx config.
+
 ### Requirements and notes
 
 - **Outbound from the visitor's browser** (not the server) to `script.google.com`, `script.googleusercontent.com`, `fonts.googleapis.com` and `fonts.gstatic.com`. If you set a Content-Security-Policy header, allow these (plus `www.googletagmanager.com` / `connect.facebook.net` if analytics IDs are set). `deploy/nginx.conf` contains a matching CSP.
