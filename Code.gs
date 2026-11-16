@@ -27,7 +27,7 @@ function pdfUrl_() { return /^https?:\/\//.test(PDF_URL) ? PDF_URL : ''; }
 function doPost(e) {
   const q = (e && e.parameter) || {};
   // Gmail/Yahoo «bir kliklə abunədən çıx» düyməsi bu ünvana POST göndərir (List-Unsubscribe-Post).
-  if (q.unsub) { unsubscribe_(q.unsub, q.t); return json_({ ok: true }); }
+  if (q.unsub) return json_({ ok: unsubscribe_(q.unsub, q.t) });
   rememberUrl_();
   let d;
   try { d = JSON.parse((e && e.postData && e.postData.contents) || '{}'); }
@@ -133,7 +133,7 @@ function sendWelcome_(name, email) {
     body: 'Salam, {{ad}}!\n\nCode Academy-nin ChatGPT cheat sheet-ini seçdiyiniz üçün təşəkkür edirik. Faylı aşağıdakı düymə ilə istənilən vaxt yükləyə bilərsiniz.\n\n' +
       '**Başlamaq üçün məsləhət:** əvvəlcə 3-cü səhifədəki ayarları qurun, sonra 4-cü səhifədəki formulla bir prompt yazın. Fərqi elə ilk cavabda görəcəksiniz.\n\n' +
       'Hörmətlə,\nSərvər Cəfərov\nCode Academy',
-    btnText: 'PDF-i yüklə', btnUrl: pdfUrl_(), name: name, unsubUrl: unsub,
+    btnText: 'PDF-i yüklə', btnUrl: pdfUrl_(), name: name, unsubUrl: unsubPageUrl_(email),
     reason: 'Bu məktubu cheat sheet-i yüklədiyiniz və Code Academy-dən məlumat almağa razılıq verdiyiniz üçün alırsınız.'
   });
   return sendMail_({ to: email, subject: 'ChatGPT cheat sheet-iniz hazırdır', html: r.html, text: r.text, unsubUrl: unsub });
@@ -280,7 +280,12 @@ function adminLink() {
       'Web app URL linkini brauzerdə bir dəfə açın, sonra bu funksiyanı yenidən işə salın.');
     return;
   }
-  console.log('CRM paneli (linki heç kimlə paylaşmayın): ' + url + '?admin=' + adminKey_());
+  const key = adminKey_();
+  // Google Workspace hesabı üçün domen linki: brauzerdə bir neçə Google hesabı açıq olanda da düzgün hesabla açılır.
+  const dom = String(Session.getEffectiveUser().getEmail() || '').split('@')[1] || '';
+  const owner = dom && !/^(gmail|googlemail)\.com$/i.test(dom) ? url.replace('/macros/s/', '/a/macros/' + dom + '/s/') : url;
+  console.log('CRM paneli (linki heç kimlə paylaşmayın): ' + owner + '?admin=' + key);
+  if (owner !== url) console.log('Alternativ link (gizli/Incognito pəncərə üçün): ' + url + '?admin=' + key);
 }
 
 /** Link kənara çıxıbsa: köhnə linki etibarsız edir və yenisini yaradır. */

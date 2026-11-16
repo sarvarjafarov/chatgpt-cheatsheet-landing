@@ -14,6 +14,8 @@
 const FROM_EMAIL  = '';    // Boş = skripti dərc edən hesab. Alias (məs. info@code.edu.az) Gmail-də «Send mail as» kimi qurulmalıdır.
 const DAILY_LIMIT = 450;   // Bütün məktublar üçün gündəlik limit. Pulsuz Gmail: 500-dən az, Google Workspace: 2000-dən az saxlayın.
 const SEND_GAP_MS = 150;   // Məktublar arasında fasilə (millisaniyə)
+// Məktubdakı «Abunədən çıx» linkinin açdığı səhifə (saytdakı abune.html). Boş qalsa, birbaşa skriptin linki işlədilir.
+const UNSUB_PAGE = 'https://chatgpt-cheatsheet-landing.pages.dev/abune';
 // =========================================
 
 const BATCH_MS = 270000;   // bir növbə işinin maksimum müddəti (Apps Script limiti 6 dəqiqədir)
@@ -176,9 +178,15 @@ function webappUrl_() {
   if (saved) return saved;
   try { const u = publicUrl_(ScriptApp.getService().getUrl()); return /\/exec$/.test(u) ? u : ''; } catch (e) { return ''; }
 }
+/** List-Unsubscribe başlığı üçün: Gmail/Yahoo bu ünvana birbaşa POST göndərir (bir kliklə). */
 function unsubUrl_(email) {
   const base = webappUrl_();
   return base ? base + '?unsub=' + encodeURIComponent(email) + '&t=' + token_(email) : '';
+}
+/** Məktubun mətnindəki link: saytdakı səhifə (bir neçə Google hesabı açıq olanda da işləyir və təsdiq istəyir). */
+function unsubPageUrl_(email) {
+  if (!UNSUB_PAGE) return unsubUrl_(email);
+  return UNSUB_PAGE + '?e=' + encodeURIComponent(email) + '&t=' + token_(email);
 }
 
 // ---------- vərəqlər ----------
@@ -332,7 +340,7 @@ function activeCamps_() {
 function sendCampaignTo_(camp, lead) {
   const unsub = unsubUrl_(lead.email);
   if (!unsub) throw new Error('Abunədən çıxma linki yaradılmadı: veb tətbiq dərc olunmayıb');
-  const r = renderEmail_({ headline: camp.headline, body: camp.body, btnText: camp.btnText, btnUrl: camp.btnUrl, name: lead.name, unsubUrl: unsub });
+  const r = renderEmail_({ headline: camp.headline, body: camp.body, btnText: camp.btnText, btnUrl: camp.btnUrl, name: lead.name, unsubUrl: unsubPageUrl_(lead.email) });
   return sendMail_({ to: lead.email, subject: personalize_(camp.subject, lead.name), html: r.html, text: r.text, unsubUrl: unsub, campaignId: camp.id });
 }
 

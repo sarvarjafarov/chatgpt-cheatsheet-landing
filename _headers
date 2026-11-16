@@ -12,3 +12,6 @@
 
 /og-image.png
   Cache-Control: public, max-age=604800
+
+/abune
+  Cache-Control: no-store
